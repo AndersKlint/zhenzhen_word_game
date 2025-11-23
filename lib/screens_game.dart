@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zhenzhen_word_game/appbar.dart';
 import 'game_service.dart';
 import 'di.dart';
 import 'models.dart';
@@ -281,15 +282,7 @@ class _MultiDeckGameState extends State<MultiDeckGame>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(color: Colors.black87),
-        title: Text(
-          "Multi Deck (${widget.decks.length})",
-          style: const TextStyle(color: Colors.black87),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: buildAppBar(context, "Multi Deck (${widget.decks.length})"),
       extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,

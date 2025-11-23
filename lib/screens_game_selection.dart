@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zhenzhen_word_game/appbar.dart';
 import 'package:zhenzhen_word_game/models.dart';
 import 'deck_service.dart';
 import 'di.dart';
@@ -12,6 +13,8 @@ class GameSelectionScreen extends StatelessWidget {
     final deckService = getIt<DeckService>();
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: buildAppBar(context, 'Games'),
       body: Container(
         width: double.infinity,
         height: double.infinity,
