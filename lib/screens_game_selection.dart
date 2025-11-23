@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:zhenzhen_word_game/appbar.dart';
 import 'package:zhenzhen_word_game/models.dart';
+import 'package:zhenzhen_word_game/random_word_game.dart';
 import 'deck_service.dart';
 import 'di.dart';
-import 'screens_game.dart';
+import 'recall_word_game.dart';
 
 class GameSelectionScreen extends StatelessWidget {
   const GameSelectionScreen({super.key});
@@ -51,7 +52,7 @@ class GameSelectionScreen extends StatelessWidget {
                   children: [
                     _buildGameCard(
                       context,
-                      title: 'Single Deck Mode',
+                      title: 'Recall Words',
                       gradient: const LinearGradient(
                         colors: [
                           Color(0xFF4DD0E1),
@@ -63,12 +64,10 @@ class GameSelectionScreen extends StatelessWidget {
                       onTap: () async {
                         final deck = await _chooseDeck(context, deckService);
                         if (deck != null) {
-                          final repeat = await _askRepeat(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  SingleDeckGame(deck: deck, repeat: repeat),
+                              builder: (_) => RecallWordGame(deck: deck),
                             ),
                           );
                         }
@@ -77,7 +76,7 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Multi Deck Mode',
+                      title: 'Random Words',
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4DD0E1), Color(0xFFFFD180)],
                         begin: Alignment.topLeft,
@@ -94,7 +93,7 @@ class GameSelectionScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
-                                  MultiDeckGame(decks: decks, repeat: repeat),
+                                  RandomWordGame(decks: decks, repeat: repeat),
                             ),
                           );
                         }
