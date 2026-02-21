@@ -12,7 +12,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTitle => '儿童中文识字游戏';
 
   @override
-  String get deckList_title => '我的词库';
+  String get deckList_title => '我的词卡';
 
   @override
   String get deckList_addDeck => '添加词库';
@@ -312,7 +312,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quiz_seeResults => '查看结果';
 
   @override
-  String get memory_youWin => '你赢了！';
+  String get memory_youWin => '太棒了！';
 
   @override
   String get memory_moves => '步数';

@@ -3,7 +3,7 @@
   
   "appTitle": "儿童中文识字游戏",
 
-  "deckList_title": "我的词库",
+  "deckList_title": "我的词卡",
   "deckList_addDeck": "添加词库",
   "deckList_addGroup": "添加分组",
   "deckList_goToGames": "进入游戏",
@@ -125,7 +125,7 @@
   "game_next": "下一张",
   "game_multiDeck": "多词库（{count}）",
 
-  "memory_youWin": "你赢了！",
+  "memory_youWin": "太棒了！",
   "memory_moves": "步数",
   "memory_matches": "配对",
   "memory_completedMoves": "用了 {count} 步完成",
@@ -135,8 +135,6 @@
   "quiz_seeResults": "查看结果",
   "quiz_question": "第 {current} / {total} 题",
   "quiz_selectAnswer": "选择正确答案：",
-
-  "cardsLeft": "剩余卡片：{current} / {total}",
 
   "lang_english": "EN",
   "lang_chinese": "中文"
