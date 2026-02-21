@@ -92,6 +92,8 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isNarrow = screenWidth < 600;
 
     return Scaffold(
       body: Container(
@@ -109,59 +111,63 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l10n.deckList_title,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+              if (isNarrow)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: PopupMenuButton<String>(
+                          icon: const Icon(
+                            Icons.more_vert,
+                            color: Colors.black87,
+                          ),
+                          onSelected: (value) {
+                            if (value == 'export') {
+                              _showExportDialog();
+                            } else if (value == 'import') {
+                              _importCollection();
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'export',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.upload_file),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.export_button),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'import',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.download),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.import_title),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _createDeck,
-                          icon: const Icon(Icons.add, size: 20),
-                          label: Text(l10n.deckList_addDeck),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink.shade200,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
+                      const Spacer(),
+                      Text(
+                        l10n.deckList_title,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
-                        const SizedBox(width: 12),
-                        ElevatedButton.icon(
-                          onPressed: _createGroup,
-                          icon: const Icon(Icons.folder_outlined, size: 20),
-                          label: Text(l10n.deckList_addGroup),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple.shade200,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      child: TextButton(
+                      ),
+                      const Spacer(),
+                      TextButton(
                         onPressed: () => localeService.toggleLocale(),
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.white.withValues(alpha: 0.6),
@@ -183,65 +189,185 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                           ),
                         ),
                       ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: PopupMenuButton<String>(
-                        icon: const Icon(
-                          Icons.more_vert,
+                    ],
+                  ),
+                )
+              else
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.deckList_title,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
-                        onSelected: (value) {
-                          if (value == 'export') {
-                            _showExportDialog();
-                          } else if (value == 'import') {
-                            _importCollection();
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'export',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.upload_file),
-                                const SizedBox(width: 8),
-                                Text(l10n.export_button),
-                              ],
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: isNarrow ? 16 : 24),
+                child: isNarrow
+                    ? Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: _createDeck,
+                              icon: const Icon(Icons.add, size: 20),
+                              label: Text(l10n.deckList_addDeck),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.pink.shade200,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed: _createGroup,
+                              icon: const Icon(Icons.folder_outlined, size: 20),
+                              label: Text(l10n.deckList_addGroup),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.purple.shade200,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Row(
+                        children: [
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: _createDeck,
+                                icon: const Icon(Icons.add, size: 20),
+                                label: Text(l10n.deckList_addDeck),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.pink.shade200,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                onPressed: _createGroup,
+                                icon: const Icon(
+                                  Icons.folder_outlined,
+                                  size: 20,
+                                ),
+                                label: Text(l10n.deckList_addGroup),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.purple.shade200,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            child: TextButton(
+                              onPressed: () => localeService.toggleLocale(),
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.6,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: Text(
+                                localeService.isEnglish
+                                    ? l10n.lang_chinese
+                                    : l10n.lang_english,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
                             ),
                           ),
-                          PopupMenuItem(
-                            value: 'import',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.download),
-                                const SizedBox(width: 8),
-                                Text(l10n.import_title),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: PopupMenuButton<String>(
+                              icon: const Icon(
+                                Icons.more_vert,
+                                color: Colors.black87,
+                              ),
+                              onSelected: (value) {
+                                if (value == 'export') {
+                                  _showExportDialog();
+                                } else if (value == 'import') {
+                                  _importCollection();
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: 'export',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.upload_file),
+                                      const SizedBox(width: 8),
+                                      Text(l10n.export_button),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: 'import',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.download),
+                                      const SizedBox(width: 8),
+                                      Text(l10n.import_title),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 16),
               Expanded(child: _buildDeckList()),
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Center(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    height: 60,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 200,
+                      maxWidth: 400,
+                    ),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
                         backgroundColor: Colors.cyan.shade300,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
                       ),
                       onPressed: deckService.decks.isEmpty
                           ? null
