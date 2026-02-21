@@ -931,11 +931,20 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
 
     String? outputPath;
     if (kIsWeb) {
+      final fileName = await _ask(
+        context,
+        l10n.export_title,
+        initialValue: 'zhenzhen_flashcard_collection.json',
+      );
+      if (fileName == null || fileName.isEmpty) return;
+      final finalName = fileName.endsWith('.json')
+          ? fileName
+          : '$fileName.json';
       final bytes = Uint8List.fromList(utf8.encode(json));
       final blob = html.Blob([bytes], 'application/json');
       final url = html.Url.createObjectUrlFromBlob(blob);
       final anchor = html.AnchorElement(href: url)
-        ..setAttribute('download', 'zhenzhen_flashcard_collection.json')
+        ..setAttribute('download', finalName)
         ..click();
       html.Url.revokeObjectUrl(url);
       if (mounted) {
