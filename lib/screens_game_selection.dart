@@ -56,6 +56,8 @@ class GameSelectionScreen extends StatelessWidget {
                     _buildGameCard(
                       context,
                       title: 'Recall: Front Only',
+                      description:
+                          'Practice cards one at a time. Mark each as "Good" if you know it or "Again" to retry later. Cards you mark "Again" will reappear until cleared.',
                       gradient: const LinearGradient(
                         colors: [
                           Color(0xFF4DD0E1),
@@ -82,6 +84,8 @@ class GameSelectionScreen extends StatelessWidget {
                     _buildGameCard(
                       context,
                       title: 'Recall: Front & Back',
+                      description:
+                          'See the front, then tap to flip and reveal the back. Great for vocabulary where you want to check your answer before rating.',
                       gradient: const LinearGradient(
                         colors: [Color(0xFFCE93D8), Color(0xFF80DEEA)],
                         begin: Alignment.topLeft,
@@ -105,6 +109,8 @@ class GameSelectionScreen extends StatelessWidget {
                     _buildGameCard(
                       context,
                       title: 'Random: Multi Deck (Front only)',
+                      description:
+                          'Combine multiple decks into one session. Shows one random word from each selected deck simultaneously. Great for rapid review across subjects.',
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4DD0E1), Color(0xFFFFD180)],
                         begin: Alignment.topLeft,
@@ -136,6 +142,8 @@ class GameSelectionScreen extends StatelessWidget {
                     _buildGameCard(
                       context,
                       title: 'Reverse Recall',
+                      description:
+                          'Shows the back text first - tap to reveal the front. Tests reverse associations, like showing a definition to recall the word.',
                       gradient: const LinearGradient(
                         colors: [Color(0xFFFFB74D), Color(0xFFFF8A65)],
                         begin: Alignment.topLeft,
@@ -173,6 +181,8 @@ class GameSelectionScreen extends StatelessWidget {
                     _buildGameCard(
                       context,
                       title: 'Multiple Choice Quiz',
+                      description:
+                          'See the front and pick the correct back from 4 options. Wrong answers come from other cards in the deck. Tracks your score.',
                       gradient: const LinearGradient(
                         colors: [Color(0xFF7E57C2), Color(0xFF42A5F5)],
                         begin: Alignment.topLeft,
@@ -210,6 +220,8 @@ class GameSelectionScreen extends StatelessWidget {
                     _buildGameCard(
                       context,
                       title: 'Memory Match',
+                      description:
+                          'Classic memory game: flip two cards at a time to find matching front/back pairs. Tracks moves taken to complete.',
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4DB6AC), Color(0xFF81C784)],
                         begin: Alignment.topLeft,
@@ -256,6 +268,7 @@ class GameSelectionScreen extends StatelessWidget {
   Widget _buildGameCard(
     BuildContext context, {
     required String title,
+    required String description,
     required LinearGradient gradient,
     required VoidCallback onTap,
   }) {
@@ -276,17 +289,37 @@ class GameSelectionScreen extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              _buildHelpIcon(context, description),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHelpIcon(BuildContext context, String description) {
+    return Tooltip(
+      message: description,
+      preferBelow: false,
+      triggerMode: TooltipTriggerMode.tap,
+      showDuration: const Duration(seconds: 5),
+      textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+      child: const Icon(Icons.help_outline, size: 28, color: Colors.black87),
     );
   }
 
