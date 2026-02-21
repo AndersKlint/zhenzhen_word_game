@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zhenzhen_word_game/appbar.dart';
 import 'package:zhenzhen_word_game/models.dart';
 import 'package:zhenzhen_word_game/random_word_game.dart';
+import 'package:zhenzhen_word_game/flip_card_game.dart';
 import 'deck_service.dart';
 import 'di.dart';
 import 'recall_word_game.dart';
@@ -68,6 +69,27 @@ class GameSelectionScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) => RecallWordGame(deck: deck),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildGameCard(
+                      context,
+                      title: 'Flip Cards',
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFCE93D8), Color(0xFF80DEEA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      onTap: () async {
+                        final deck = await _chooseDeck(context, deckService);
+                        if (deck != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => FlipCardGame(deck: deck),
                             ),
                           );
                         }
@@ -146,21 +168,18 @@ class GameSelectionScreen extends StatelessWidget {
     );
   }
 
-  Future askDialog(BuildContext context, Widget child) =>
-      showDialog(context: context, builder: (_) => child);
-
   Future<bool> _askRepeat(BuildContext context) async {
-    return await askDialog(
-      context,
-      AlertDialog(
+    return await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
         title: const Text('Repeat words?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(ctx, false),
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Yes'),
           ),
         ],
@@ -169,17 +188,44 @@ class GameSelectionScreen extends StatelessWidget {
   }
 
   Future<dynamic> _chooseDeck(BuildContext context, DeckService ds) {
-    return askDialog(
-      context,
-      SimpleDialog(
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
         title: const Text('Choose deck'),
-        children: [
-          for (final d in ds.decks)
-            SimpleDialogOption(
-              child: Text(d.name),
-              onPressed: () => Navigator.pop(context, d),
-            ),
-        ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final d in ds.getUngroupedDecks())
+                ListTile(
+                  dense: true,
+                  title: Text(d.name),
+                  onTap: () => Navigator.pop(ctx, d),
+                ),
+              for (final group in ds.groups) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  child: Text(
+                    group.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                for (final d in ds.getGroupDecks(group.id))
+                  ListTile(
+                    dense: true,
+                    contentPadding: const EdgeInsets.only(left: 32, right: 16),
+                    title: Text(d.name),
+                    onTap: () => Navigator.pop(ctx, d),
+                  ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -189,35 +235,65 @@ class GameSelectionScreen extends StatelessWidget {
     DeckService ds,
   ) async {
     final selected = <Deck>{};
-    await askDialog(
-      context,
-      AlertDialog(
-        title: const Text('Select decks'),
-        content: StatefulBuilder(
-          builder: (context, setState) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final d in ds.decks)
-                CheckboxListTile(
-                  title: Text(d.name),
-                  value: selected.contains(d),
-                  onChanged: (val) => setState(
-                    () => val! ? selected.add(d) : selected.remove(d),
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Select decks'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final d in ds.getUngroupedDecks())
+                  CheckboxListTile(
+                    dense: true,
+                    title: Text(d.name),
+                    value: selected.contains(d),
+                    onChanged: (val) => setDialogState(
+                      () => val! ? selected.add(d) : selected.remove(d),
+                    ),
                   ),
-                ),
-            ],
+                for (final group in ds.groups) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                    child: Text(
+                      group.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  for (final d in ds.getGroupDecks(group.id))
+                    CheckboxListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                      ),
+                      title: Text(d.name),
+                      value: selected.contains(d),
+                      onChanged: (val) => setDialogState(
+                        () => val! ? selected.add(d) : selected.remove(d),
+                      ),
+                    ),
+                ],
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, selected.toList()),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
     return selected.toList();
