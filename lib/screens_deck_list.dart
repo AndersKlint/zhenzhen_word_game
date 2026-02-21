@@ -933,7 +933,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
       outputPath = await FilePicker.platform.saveFile(
         dialogTitle: l10n.export_title,
         fileName: 'zhenzhen_flashcard_collection.json',
-        bytes: Uint8List.fromList(json.codeUnits),
+        bytes: Uint8List.fromList(utf8.encode(json)),
       );
     } else {
       outputPath = await FilePicker.platform.saveFile(
@@ -969,7 +969,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
     String json;
 
     if (kIsWeb) {
-      json = String.fromCharCodes(file.bytes!);
+      json = utf8.decode(file.bytes!);
     } else {
       json = await File(file.path!).readAsString();
     }
