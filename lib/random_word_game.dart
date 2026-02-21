@@ -142,7 +142,10 @@ class _RandomWordGameState extends State<RandomWordGame>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: current.map(_buildCard).toList(),
+                            children: current
+                                .where((c) => c.isNotEmpty)
+                                .map(_buildCard)
+                                .toList(),
                           ),
                         ),
                 ),

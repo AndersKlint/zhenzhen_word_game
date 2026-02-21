@@ -53,7 +53,7 @@ class GameSelectionScreen extends StatelessWidget {
                   children: [
                     _buildGameCard(
                       context,
-                      title: 'Recall Words',
+                      title: 'Recall: Front Only',
                       gradient: const LinearGradient(
                         colors: [
                           Color(0xFF4DD0E1),
@@ -77,7 +77,7 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Flip Cards',
+                      title: 'Recall: Front & Back',
                       gradient: const LinearGradient(
                         colors: [Color(0xFFCE93D8), Color(0xFF80DEEA)],
                         begin: Alignment.topLeft,
@@ -98,7 +98,7 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Random Words',
+                      title: 'Random: Multi Deck (Front only)',
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4DD0E1), Color(0xFFFFD180)],
                         begin: Alignment.topLeft,
