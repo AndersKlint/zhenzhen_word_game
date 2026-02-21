@@ -168,7 +168,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                               );
                             },
                       child: const Text(
-                        'Play',
+                        'Go to Games',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -373,96 +373,134 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Widget _buildDeckCardContent(Deck deck) {
+    final primary1 =
+        Colors.primaries[deck.id.hashCode % Colors.primaries.length];
+    final primary2 =
+        Colors.primaries[(deck.id.hashCode + 3) % Colors.primaries.length];
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors
-                .primaries[deck.id.hashCode % Colors.primaries.length]
-                .shade100,
-            Colors
-                .primaries[(deck.id.hashCode + 3) % Colors.primaries.length]
-                .shade200,
-          ],
+          colors: [primary1.shade100, primary2.shade200],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => DeckEditor(deckId: deck.id)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    deck.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DeckEditor(deckId: deck.id),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${deck.words.length} cards',
-                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        deck.name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${deck.words.length} cards',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit, color: Colors.black87),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => DeckEditor(deckId: deck.id)),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.black87),
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Delete deck?'),
-                  content: Text(
-                    'Are you sure you want to delete "${deck.name}"?',
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.black87),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DeckEditor(deckId: deck.id),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.black87),
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Delete deck?'),
+                    content: Text(
+                      'Are you sure you want to delete "${deck.name}"?',
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Delete'),
-                    ),
-                  ],
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  deckService.removeDeck(deck.id);
+                }
+              },
+            ),
+            Container(
+              width: 72,
+              decoration: BoxDecoration(
+                color: primary2.shade500,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
                 ),
-              );
-              if (confirmed == true) {
-                deckService.removeDeck(deck.id);
-              }
-            },
-          ),
-        ],
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          GameSelectionScreen(preselectedDeck: deck),
+                    ),
+                  );
+                },
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+                child: const Center(
+                  child: Icon(Icons.play_arrow, size: 32, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

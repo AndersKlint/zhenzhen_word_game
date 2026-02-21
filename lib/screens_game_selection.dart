@@ -8,7 +8,8 @@ import 'di.dart';
 import 'recall_word_game.dart';
 
 class GameSelectionScreen extends StatelessWidget {
-  const GameSelectionScreen({super.key});
+  final Deck? preselectedDeck;
+  const GameSelectionScreen({super.key, this.preselectedDeck});
 
   @override
   Widget build(BuildContext context) {
@@ -22,24 +23,22 @@ class GameSelectionScreen extends StatelessWidget {
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFF8BBD0), // pink
-              Color(0xFF4DD0E1), // turquoise
-            ],
+            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              const Center(
+              Center(
                 child: Text(
-                  'Select Game Mode',
-                  style: TextStyle(
+                  preselectedDeck != null
+                      ? 'Playing: ${preselectedDeck!.name}'
+                      : 'Select Game Mode',
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -63,7 +62,9 @@ class GameSelectionScreen extends StatelessWidget {
                         end: Alignment.bottomRight,
                       ),
                       onTap: () async {
-                        final deck = await _chooseDeck(context, deckService);
+                        final deck =
+                            preselectedDeck ??
+                            await _chooseDeck(context, deckService);
                         if (deck != null) {
                           Navigator.push(
                             context,
@@ -84,7 +85,9 @@ class GameSelectionScreen extends StatelessWidget {
                         end: Alignment.bottomRight,
                       ),
                       onTap: () async {
-                        final deck = await _chooseDeck(context, deckService);
+                        final deck =
+                            preselectedDeck ??
+                            await _chooseDeck(context, deckService);
                         if (deck != null) {
                           Navigator.push(
                             context,
@@ -108,16 +111,21 @@ class GameSelectionScreen extends StatelessWidget {
                         final decks = await _chooseMultiple(
                           context,
                           deckService,
+                          preselected: preselectedDeck,
                         );
                         if (decks.isNotEmpty) {
                           final repeat = await _askRepeat(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  RandomWordGame(decks: decks, repeat: repeat),
-                            ),
-                          );
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RandomWordGame(
+                                  decks: decks,
+                                  repeat: repeat,
+                                ),
+                              ),
+                            );
+                          }
                         }
                       },
                     ),
@@ -147,7 +155,7 @@ class GameSelectionScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -232,9 +240,10 @@ class GameSelectionScreen extends StatelessWidget {
 
   Future<List<Deck>> _chooseMultiple(
     BuildContext context,
-    DeckService ds,
-  ) async {
-    final selected = <Deck>{};
+    DeckService ds, {
+    Deck? preselected,
+  }) async {
+    final selected = <Deck>{if (preselected != null) preselected};
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
