@@ -1,16 +1,41 @@
-# zhenzhen_word_game
+# Flashcard Games
 
-A new Flutter project.
+A Flutter flashcard app for teachers to create decks and play learning games with kids.
+
+## Features
+
+### Deck Management
+- Create, edit, and delete flashcard decks
+- Cards support front text with optional back text
+- Organize decks into groups for better structure
+- Drag and drop decks between groups or to ungroup
+
+### Games
+- **Recall: Front Only** - Practice cards one at a time with Again/Good buttons
+- **Recall: Front & Back** - Flip cards to reveal the back before rating
+- **Random: Multi Deck** - Combine multiple decks into a randomized session
+
+### Organization
+- Group decks for subject-based organization
+- Play all cards in a group as one combined deck
+- Select entire groups when playing multi-deck games
+
+### Data
+- Import/Export collections as JSON files
+- Handles duplicate deck names with rename/replace/skip options
+- Data persists locally across app updates
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+```bash
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+## Building
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter build windows
+flutter build web
+flutter build apk
+```

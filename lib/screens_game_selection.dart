@@ -3,6 +3,9 @@ import 'package:zhenzhen_word_game/appbar.dart';
 import 'package:zhenzhen_word_game/models.dart';
 import 'package:zhenzhen_word_game/random_word_game.dart';
 import 'package:zhenzhen_word_game/flip_card_game.dart';
+import 'package:zhenzhen_word_game/reverse_recall_game.dart';
+import 'package:zhenzhen_word_game/multiple_choice_game.dart';
+import 'package:zhenzhen_word_game/memory_match_game.dart';
 import 'deck_service.dart';
 import 'di.dart';
 import 'recall_word_game.dart';
@@ -123,6 +126,117 @@ class GameSelectionScreen extends StatelessWidget {
                                   decks: decks,
                                   repeat: repeat,
                                 ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildGameCard(
+                      context,
+                      title: 'Reverse Recall',
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFB74D), Color(0xFFFF8A65)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      onTap: () async {
+                        final deck =
+                            preselectedDeck ??
+                            await _chooseDeck(context, deckService);
+                        if (deck != null) {
+                          if (deck.backs.isEmpty) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'This deck has no cards with back text',
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ReverseRecallGame(deck: deck),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildGameCard(
+                      context,
+                      title: 'Multiple Choice Quiz',
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7E57C2), Color(0xFF42A5F5)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      onTap: () async {
+                        final deck =
+                            preselectedDeck ??
+                            await _chooseDeck(context, deckService);
+                        if (deck != null) {
+                          if (deck.backs.isEmpty) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'This deck has no cards with back text',
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MultipleChoiceGame(deck: deck),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildGameCard(
+                      context,
+                      title: 'Memory Match',
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF4DB6AC), Color(0xFF81C784)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      onTap: () async {
+                        final deck =
+                            preselectedDeck ??
+                            await _chooseDeck(context, deckService);
+                        if (deck != null) {
+                          if (deck.backs.isEmpty) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'This deck has no cards with back text',
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MemoryMatchGame(deck: deck),
                               ),
                             );
                           }
