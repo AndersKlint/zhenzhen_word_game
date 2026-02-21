@@ -306,6 +306,13 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
   }
 
   LinearGradient _getTileGradient(_MemoryTile tile) {
+    if (tile.isMatched) {
+      return LinearGradient(
+        colors: [Colors.green.shade200, Colors.green.shade400],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
     final baseIndex = tile.cardIndex % Colors.primaries.length;
     final color = Colors.primaries[baseIndex];
     return LinearGradient(
