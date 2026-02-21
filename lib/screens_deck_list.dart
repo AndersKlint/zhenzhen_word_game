@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'l10n/app_localizations.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:html' as html;
+import 'platform/file_export.dart';
 import 'deck_service.dart';
 import 'di.dart';
 import 'locale_service.dart';
@@ -828,12 +828,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
           ? fileName
           : '$fileName.json';
       final bytes = Uint8List.fromList(utf8.encode(json));
-      final blob = html.Blob([bytes], 'application/json');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute('download', finalName)
-        ..click();
-      html.Url.revokeObjectUrl(url);
+      await exportFileWeb(bytes, finalName);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.export_success(selected.length))),
