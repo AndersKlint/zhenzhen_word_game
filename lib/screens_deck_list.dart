@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
+import 'l10n/app_localizations.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'deck_service.dart';
 import 'di.dart';
+import 'locale_service.dart';
 import 'screens_deck_editor.dart';
 import 'screens_game_selection.dart';
 import 'models.dart';
@@ -18,6 +20,7 @@ class DeckListScaffold extends StatefulWidget {
 
 class _DeckListScaffoldState extends State<DeckListScaffold> {
   final deckService = getIt<DeckService>();
+  final localeService = getIt<LocaleService>();
   final Set<String> _expandedGroups = {};
 
   @override
@@ -35,42 +38,48 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   void _update() => setState(() {});
 
   Future<void> _createDeck({String? groupId}) async {
-    final name = await _ask(context, 'Deck name?');
+    final l10n = AppLocalizations.of(context)!;
+    final name = await _ask(context, l10n.dialog_deckName);
     if (name != null && name.trim().isNotEmpty) {
       await deckService.addDeck(name.trim(), groupId: groupId);
     }
   }
 
   Future<void> _createGroup() async {
-    final name = await _ask(context, 'Group name?');
+    final l10n = AppLocalizations.of(context)!;
+    final name = await _ask(context, l10n.dialog_groupName);
     if (name != null && name.trim().isNotEmpty) {
       await deckService.addGroup(name.trim());
     }
   }
 
   Future<void> _renameGroup(DeckGroup group) async {
-    final name = await _ask(context, 'New name?', initialValue: group.name);
+    final l10n = AppLocalizations.of(context)!;
+    final name = await _ask(
+      context,
+      l10n.dialog_newName,
+      initialValue: group.name,
+    );
     if (name != null && name.trim().isNotEmpty) {
       await deckService.renameGroup(group.id, name.trim());
     }
   }
 
   Future<void> _deleteGroup(DeckGroup group) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete group?'),
-        content: Text(
-          'Delete "${group.name}"? Decks in this group will become ungrouped.',
-        ),
+        title: Text(l10n.deleteGroup_title),
+        content: Text(l10n.deleteGroup_message(group.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.dialog_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.dialog_delete),
           ),
         ],
       ),
@@ -82,6 +91,8 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -102,9 +113,9 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Your Decks',
-                      style: TextStyle(
+                    Text(
+                      l10n.deckList_title,
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -125,7 +136,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                         ElevatedButton.icon(
                           onPressed: _createDeck,
                           icon: const Icon(Icons.add, size: 20),
-                          label: const Text('Add Deck'),
+                          label: Text(l10n.deckList_addDeck),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.pink.shade200,
                             shape: RoundedRectangleBorder(
@@ -137,7 +148,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                         ElevatedButton.icon(
                           onPressed: _createGroup,
                           icon: const Icon(Icons.folder_outlined, size: 20),
-                          label: const Text('Add Group'),
+                          label: Text(l10n.deckList_addGroup),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple.shade200,
                             shape: RoundedRectangleBorder(
@@ -148,6 +159,31 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                       ],
                     ),
                     const Spacer(),
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      child: TextButton(
+                        onPressed: () => localeService.toggleLocale(),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: 0.6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: Text(
+                          localeService.isEnglish
+                              ? l10n.lang_chinese
+                              : l10n.lang_english,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.6),
@@ -166,23 +202,23 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'export',
                             child: Row(
                               children: [
-                                Icon(Icons.upload_file),
-                                SizedBox(width: 8),
-                                Text('Export'),
+                                const Icon(Icons.upload_file),
+                                const SizedBox(width: 8),
+                                Text(l10n.export_button),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'import',
                             child: Row(
                               children: [
-                                Icon(Icons.download),
-                                SizedBox(width: 8),
-                                Text('Import'),
+                                const Icon(Icons.download),
+                                const SizedBox(width: 8),
+                                Text(l10n.import_title),
                               ],
                             ),
                           ),
@@ -217,9 +253,9 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                                 ),
                               );
                             },
-                      child: const Text(
-                        'Go to Games',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.deckList_goToGames,
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
@@ -237,14 +273,15 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Widget _buildDeckList() {
+    final l10n = AppLocalizations.of(context)!;
     final ungroupedDecks = deckService.getUngroupedDecks();
     final groups = deckService.groups;
 
     if (deckService.decks.isEmpty && groups.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No decks yet. Create one!',
-          style: TextStyle(fontSize: 18, color: Colors.black54),
+          l10n.deckList_noDecks,
+          style: const TextStyle(fontSize: 18, color: Colors.black54),
         ),
       );
     }
@@ -270,6 +307,8 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Widget _buildUngroupedDropZone(List<Deck> ungroupedDecks) {
+    final l10n = AppLocalizations.of(context)!;
+
     return DragTarget<String>(
       onWillAccept: (deckId) {
         if (deckId != null) {
@@ -297,10 +336,10 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
           ),
           child: isEmpty
               ? isHovering
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'Drop here to ungroup',
-                          style: TextStyle(
+                          l10n.deckList_dropToUngroup,
+                          style: const TextStyle(
                             color: Colors.orange,
                             fontWeight: FontWeight.w500,
                           ),
@@ -318,6 +357,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Widget _buildGroupHeader(DeckGroup group) {
+    final l10n = AppLocalizations.of(context)!;
     final decks = deckService.getGroupDecks(group.id);
     final deckCount = decks.length;
     final isExpanded = _expandedGroups.contains(group.id);
@@ -398,7 +438,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                               color: Colors.black54,
                             ),
                             onPressed: () => _renameGroup(group),
-                            tooltip: 'Rename',
+                            tooltip: l10n.tooltip_rename,
                           ),
                           IconButton(
                             icon: const Icon(
@@ -407,7 +447,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                               color: Colors.black54,
                             ),
                             onPressed: () => _deleteGroup(group),
-                            tooltip: 'Delete',
+                            tooltip: l10n.tooltip_delete,
                           ),
                         ],
                       ),
@@ -538,6 +578,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Widget _buildDeckCardContent(Deck deck) {
+    final l10n = AppLocalizations.of(context)!;
     final primary1 =
         Colors.primaries[deck.id.hashCode % Colors.primaries.length];
     final primary2 =
@@ -587,7 +628,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${deck.words.length} cards',
+                        l10n.deckList_cards(deck.words.length),
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black87,
@@ -615,18 +656,16 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: const Text('Delete deck?'),
-                    content: Text(
-                      'Are you sure you want to delete "${deck.name}"?',
-                    ),
+                    title: Text(l10n.deleteDeck_title),
+                    content: Text(l10n.deleteDeck_message(deck.name)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel'),
+                        child: Text(l10n.dialog_cancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
-                        child: const Text('Delete'),
+                        child: Text(l10n.dialog_delete),
                       ),
                     ],
                   ),
@@ -671,6 +710,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Future<void> _showExportDialog() async {
+    final l10n = AppLocalizations.of(context)!;
     final selected = <Deck>{};
     bool selectAll = false;
 
@@ -678,7 +718,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Export Decks'),
+          title: Text(l10n.export_title),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -686,7 +726,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
               children: [
                 CheckboxListTile(
                   dense: true,
-                  title: const Text('Select All'),
+                  title: Text(l10n.export_selectAll),
                   value: selectAll,
                   onChanged: (val) {
                     setDialogState(() {
@@ -741,7 +781,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(l10n.dialog_cancel),
             ),
             TextButton(
               onPressed: selected.isEmpty
@@ -750,7 +790,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                       Navigator.pop(ctx);
                       await _exportSelected(selected);
                     },
-              child: const Text('Export'),
+              child: Text(l10n.export_button),
             ),
           ],
         ),
@@ -759,18 +799,19 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   Future<void> _exportSelected(Set<Deck> selected) async {
+    final l10n = AppLocalizations.of(context)!;
     final json = deckService.exportCollection(selected);
 
     String? outputPath;
     if (kIsWeb) {
       outputPath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Collection',
+        dialogTitle: l10n.export_title,
         fileName: 'zhenzhen_flashcard_collection.json',
         bytes: Uint8List.fromList(json.codeUnits),
       );
     } else {
       outputPath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Collection',
+        dialogTitle: l10n.export_title,
         fileName: 'zhenzhen_flashcard_collection.json',
       );
       if (outputPath != null) {
@@ -781,14 +822,15 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
 
     if (outputPath != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Exported ${selected.length} deck(s)')),
+        SnackBar(content: Text(l10n.export_success(selected.length))),
       );
     }
   }
 
   Future<void> _importCollection() async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Import Collection',
+      dialogTitle: l10n.import_title,
       allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: ['json'],
@@ -852,9 +894,9 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.import_failed(e.toString()))),
+        );
       }
     }
   }
@@ -863,6 +905,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
     String json,
     List<(Deck, String?)> conflicts,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     int currentIndex = 0;
     final resolutions = <(String, String?), ConflictResolution>{};
     bool applyToAll = false;
@@ -873,7 +916,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
           if (currentIndex >= conflicts.length) {
-            return const AlertDialog(content: Text('Processing...'));
+            return AlertDialog(content: Text(l10n.import_processing));
           }
 
           final (conflict, groupId) = conflicts[currentIndex];
@@ -882,26 +925,26 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
               : null;
 
           return AlertDialog(
-            title: const Text('Duplicate Deck Name'),
+            title: Text(l10n.conflict_title),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   groupName != null
-                      ? 'A deck named "${conflict.name}" already exists in "$groupName".'
-                      : 'An ungrouped deck named "${conflict.name}" already exists.',
+                      ? l10n.conflict_messageGrouped(conflict.name, groupName)
+                      : l10n.conflict_messageUngrouped(conflict.name),
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'What would you like to do?',
+                  l10n.conflict_whatToDo,
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 16),
                 CheckboxListTile(
                   dense: true,
-                  title: const Text('Apply to all remaining conflicts'),
+                  title: Text(l10n.conflict_applyToAll),
                   value: applyToAll,
                   onChanged: (val) => setDialogState(() {
                     applyToAll = val ?? false;
@@ -928,7 +971,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                     }
                   }
                 },
-                child: const Text('Skip'),
+                child: Text(l10n.dialog_skip),
               ),
               TextButton(
                 onPressed: () {
@@ -948,7 +991,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                     }
                   }
                 },
-                child: const Text('Rename'),
+                child: Text(l10n.dialog_rename),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -968,7 +1011,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
                     }
                   }
                 },
-                child: const Text('Replace'),
+                child: Text(l10n.dialog_replace),
               ),
             ],
           );
@@ -988,29 +1031,30 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
   }
 
   void _showImportResult(ImportResult result) {
+    final l10n = AppLocalizations.of(context)!;
     final parts = <String>[];
     if (result.decksImported > 0) {
-      parts.add('${result.decksImported} imported');
+      parts.add(l10n.importResult_imported(result.decksImported));
     }
     if (result.decksReplaced > 0) {
-      parts.add('${result.decksReplaced} replaced');
+      parts.add(l10n.importResult_replaced(result.decksReplaced));
     }
     if (result.decksRenamed > 0) {
-      parts.add('${result.decksRenamed} renamed');
+      parts.add(l10n.importResult_renamed(result.decksRenamed));
     }
     if (result.decksSkipped > 0) {
-      parts.add('${result.decksSkipped} skipped');
+      parts.add(l10n.importResult_skipped(result.decksSkipped));
     }
     if (result.groupsMerged > 0) {
-      parts.add('${result.groupsMerged} groups merged');
+      parts.add(l10n.importResult_groupsMerged(result.groupsMerged));
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           parts.isEmpty
-              ? 'No changes made'
-              : 'Import complete: ${parts.join(', ')}',
+              ? l10n.importResult_noChanges
+              : l10n.importResult_complete(parts.join(', ')),
         ),
       ),
     );
@@ -1021,6 +1065,7 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
     String prompt, {
     String? initialValue,
   }) async {
+    final l10n = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: initialValue);
     return showDialog<String>(
       context: context,
@@ -1030,11 +1075,11 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.dialog_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, ctrl.text),
-            child: const Text('OK'),
+            child: Text(l10n.dialog_ok),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'package:zhenzhen_word_game/appbar.dart';
 import 'deck_service.dart';
 import 'di.dart';
@@ -49,6 +50,7 @@ class _DeckEditorState extends State<DeckEditor> {
   }
 
   void _editWord(int index) async {
+    final l10n = AppLocalizations.of(context)!;
     final deck = deckService.getDeck(widget.deckId);
     final currentFront = deck.words[index];
     final currentBack = deck.getBack(index) ?? '';
@@ -59,23 +61,23 @@ class _DeckEditorState extends State<DeckEditor> {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Card'),
+        title: Text(l10n.editor_editCard),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: frontCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Front',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.editor_front,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: backCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Back (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.editor_back,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -83,11 +85,11 @@ class _DeckEditorState extends State<DeckEditor> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.dialog_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Save'),
+            child: Text(l10n.editor_save),
           ),
         ],
       ),
@@ -105,14 +107,15 @@ class _DeckEditorState extends State<DeckEditor> {
   }
 
   Future<void> _selectGroup() async {
+    final l10n = AppLocalizations.of(context)!;
     final deck = deckService.getDeck(widget.deckId);
     final selected = await showDialog<String?>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Select Group'),
+        title: Text(l10n.editor_selectGroup),
         children: [
           SimpleDialogOption(
-            child: const Text('No Group'),
+            child: Text(l10n.editor_noGroup),
             onPressed: () => Navigator.pop(ctx, null),
           ),
           for (final group in deckService.groups)
@@ -131,6 +134,7 @@ class _DeckEditorState extends State<DeckEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final deck = deckService.getDeck(widget.deckId);
     final groupName = deck.groupId != null
         ? deckService.getGroup(deck.groupId!)?.name
@@ -138,7 +142,7 @@ class _DeckEditorState extends State<DeckEditor> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildAppBar(context, 'Edit: ${deck.name}'),
+      appBar: buildAppBar(context, l10n.editor_title(deck.name)),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -171,7 +175,7 @@ class _DeckEditorState extends State<DeckEditor> {
                         const Icon(Icons.folder_outlined, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          groupName ?? 'No Group',
+                          groupName ?? l10n.editor_noGroup,
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 4),
@@ -183,10 +187,13 @@ class _DeckEditorState extends State<DeckEditor> {
               ),
               Expanded(
                 child: deck.words.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'Add your first card!',
-                          style: TextStyle(fontSize: 20, color: Colors.black54),
+                          l10n.editor_addFirstCard,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.black54,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -288,14 +295,14 @@ class _DeckEditorState extends State<DeckEditor> {
                             focusNode: _frontFocusNode,
                             textInputAction: TextInputAction.next,
                             onSubmitted: (_) => _backFocusNode.requestFocus(),
-                            decoration: const InputDecoration(
-                              labelText: 'Front',
-                              border: OutlineInputBorder(
+                            decoration: InputDecoration(
+                              labelText: l10n.editor_front,
+                              border: const OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(12),
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 14,
                               ),
@@ -309,14 +316,14 @@ class _DeckEditorState extends State<DeckEditor> {
                             focusNode: _backFocusNode,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (_) => _addWord(),
-                            decoration: const InputDecoration(
-                              labelText: 'Back (optional)',
-                              border: OutlineInputBorder(
+                            decoration: InputDecoration(
+                              labelText: l10n.editor_back,
+                              border: const OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(12),
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 14,
                               ),
@@ -337,9 +344,9 @@ class _DeckEditorState extends State<DeckEditor> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: const Text(
-                          'Add Card',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.editor_addCard,
+                          style: const TextStyle(
                             color: Colors.black87,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,

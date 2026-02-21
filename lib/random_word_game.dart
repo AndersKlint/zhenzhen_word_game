@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'package:zhenzhen_word_game/appbar.dart';
 import 'game_service.dart';
 import 'di.dart';
@@ -109,8 +110,10 @@ class _RandomWordGameState extends State<RandomWordGame>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: buildAppBar(context, "Multi Deck (${widget.decks.length})"),
+      appBar: buildAppBar(context, l10n.game_multiDeck(widget.decks.length)),
       extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,
@@ -129,9 +132,9 @@ class _RandomWordGameState extends State<RandomWordGame>
               Expanded(
                 child: Center(
                   child: finished
-                      ? const Text(
-                          "All done!",
-                          style: TextStyle(
+                      ? Text(
+                          l10n.common_allDone,
+                          style: const TextStyle(
                             fontSize: 50,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
@@ -167,7 +170,7 @@ class _RandomWordGameState extends State<RandomWordGame>
                     ),
                     onPressed: finished ? () => Navigator.pop(context) : _next,
                     child: Text(
-                      finished ? "Finish" : "Next",
+                      finished ? l10n.common_finish : l10n.common_next,
                       style: const TextStyle(
                         fontSize: 28,
                         color: Colors.black87,

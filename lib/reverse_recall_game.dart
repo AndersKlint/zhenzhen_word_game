@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'models.dart';
 import 'dart:math';
 
@@ -190,12 +191,13 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final remainingCards =
         _currentIndices.length + _delayed.length + (finished ? 0 : 1);
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(color: Colors.black87),
+        leading: const BackButton(color: Colors.black87),
         title: Text(
           widget.deck.name,
           style: const TextStyle(color: Colors.black87),
@@ -222,7 +224,7 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: Text(
-                    'Cards left: $remainingCards / $_totalCards',
+                    l10n.game_cardsLeft(remainingCards, _totalCards),
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -232,10 +234,10 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
               Expanded(
                 child: Center(
                   child: finished
-                      ? const Text(
-                          "Congratulations! You cleared all the cards!",
+                      ? Text(
+                          l10n.common_congratulations,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
@@ -248,7 +250,7 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text(
-                    _showFront ? '' : 'Tap to reveal answer',
+                    _showFront ? '' : l10n.common_tapToReveal,
                     style: const TextStyle(fontSize: 16, color: Colors.black54),
                   ),
                 ),
@@ -269,9 +271,12 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text(
-                            "Again",
-                            style: TextStyle(fontSize: 24, color: Colors.white),
+                          child: Text(
+                            l10n.common_again,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -285,9 +290,12 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text(
-                            "Good",
-                            style: TextStyle(fontSize: 24, color: Colors.white),
+                          child: Text(
+                            l10n.common_good,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -311,9 +319,12 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      child: const Text(
-                        "Finish",
-                        style: TextStyle(fontSize: 28, color: Colors.black87),
+                      child: Text(
+                        l10n.common_finish,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                   ),

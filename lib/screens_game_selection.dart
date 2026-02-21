@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'package:zhenzhen_word_game/appbar.dart';
 import 'package:zhenzhen_word_game/models.dart';
 import 'package:zhenzhen_word_game/random_word_game.dart';
@@ -16,11 +17,12 @@ class GameSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final deckService = getIt<DeckService>();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildAppBar(context, 'Games'),
+      appBar: buildAppBar(context, l10n.gameSelection_title),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -39,8 +41,8 @@ class GameSelectionScreen extends StatelessWidget {
               Center(
                 child: Text(
                   preselectedDeck != null
-                      ? 'Playing: ${preselectedDeck!.name}'
-                      : 'Select Game Mode',
+                      ? l10n.gameSelection_playing(preselectedDeck!.name)
+                      : l10n.gameSelection_selectMode,
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -55,9 +57,8 @@ class GameSelectionScreen extends StatelessWidget {
                   children: [
                     _buildGameCard(
                       context,
-                      title: 'Recall: Front Only',
-                      description:
-                          'Practice cards one at a time. Mark each as "Good" if you know it or "Again" to retry later. Cards you mark "Again" will reappear until cleared.',
+                      title: l10n.game_recallFront_title,
+                      description: l10n.game_recallFront_desc,
                       gradient: const LinearGradient(
                         colors: [
                           Color(0xFF4DD0E1),
@@ -83,9 +84,8 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Recall: Front & Back',
-                      description:
-                          'See the front, then tap to flip and reveal the back. Great for vocabulary where you want to check your answer before rating.',
+                      title: l10n.game_recallBoth_title,
+                      description: l10n.game_recallBoth_desc,
                       gradient: const LinearGradient(
                         colors: [Color(0xFFCE93D8), Color(0xFF80DEEA)],
                         begin: Alignment.topLeft,
@@ -108,9 +108,8 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Random: Multi Deck (Front only)',
-                      description:
-                          'Combine multiple decks into one session. Shows one random word from each selected deck simultaneously. Great for rapid review across subjects.',
+                      title: l10n.game_randomMulti_title,
+                      description: l10n.game_randomMulti_desc,
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4DD0E1), Color(0xFFFFD180)],
                         begin: Alignment.topLeft,
@@ -141,9 +140,8 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Reverse Recall',
-                      description:
-                          'Shows the back text first - tap to reveal the front. Tests reverse associations, like showing a definition to recall the word.',
+                      title: l10n.game_reverseRecall_title,
+                      description: l10n.game_reverseRecall_desc,
                       gradient: const LinearGradient(
                         colors: [Color(0xFFFFB74D), Color(0xFFFF8A65)],
                         begin: Alignment.topLeft,
@@ -157,11 +155,7 @@ class GameSelectionScreen extends StatelessWidget {
                           if (deck.backs.isEmpty) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'This deck has no cards with back text',
-                                  ),
-                                ),
+                                SnackBar(content: Text(l10n.common_noBackText)),
                               );
                             }
                             return;
@@ -180,9 +174,8 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Multiple Choice Quiz',
-                      description:
-                          'See the front and pick the correct back from 4 options. Wrong answers come from other cards in the deck. Tracks your score.',
+                      title: l10n.game_multipleChoice_title,
+                      description: l10n.game_multipleChoice_desc,
                       gradient: const LinearGradient(
                         colors: [Color(0xFF7E57C2), Color(0xFF42A5F5)],
                         begin: Alignment.topLeft,
@@ -196,11 +189,7 @@ class GameSelectionScreen extends StatelessWidget {
                           if (deck.backs.isEmpty) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'This deck has no cards with back text',
-                                  ),
-                                ),
+                                SnackBar(content: Text(l10n.common_noBackText)),
                               );
                             }
                             return;
@@ -219,9 +208,8 @@ class GameSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildGameCard(
                       context,
-                      title: 'Memory Match',
-                      description:
-                          'Classic memory game: flip two cards at a time to find matching front/back pairs. Tracks moves taken to complete.',
+                      title: l10n.game_memoryMatch_title,
+                      description: l10n.game_memoryMatch_desc,
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4DB6AC), Color(0xFF81C784)],
                         begin: Alignment.topLeft,
@@ -235,11 +223,7 @@ class GameSelectionScreen extends StatelessWidget {
                           if (deck.backs.isEmpty) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'This deck has no cards with back text',
-                                  ),
-                                ),
+                                SnackBar(content: Text(l10n.common_noBackText)),
                               );
                             }
                             return;
@@ -324,18 +308,19 @@ class GameSelectionScreen extends StatelessWidget {
   }
 
   Future<bool> _askRepeat(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     return await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Repeat words?'),
+        title: Text(l10n.repeatWords_title),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('No'),
+            child: Text(l10n.repeatWords_no),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Yes'),
+            child: Text(l10n.repeatWords_yes),
           ),
         ],
       ),
@@ -343,10 +328,11 @@ class GameSelectionScreen extends StatelessWidget {
   }
 
   Future<dynamic> _chooseDeck(BuildContext context, DeckService ds) {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Choose deck'),
+        title: Text(l10n.chooseDeck_title),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -390,12 +376,13 @@ class GameSelectionScreen extends StatelessWidget {
     DeckService ds, {
     Deck? preselected,
   }) async {
+    final l10n = AppLocalizations.of(context)!;
     final selected = <Deck>{if (preselected != null) preselected};
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Select decks'),
+          title: Text(l10n.selectDecks_title),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -478,11 +465,11 @@ class GameSelectionScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(l10n.dialog_cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('OK'),
+              child: Text(l10n.dialog_ok),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'models.dart';
 import 'dart:math';
 
@@ -119,11 +120,12 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final totalQuestions = _cardIndices.length;
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(color: Colors.black87),
+        leading: const BackButton(color: Colors.black87),
         title: Text(
           widget.deck.name,
           style: const TextStyle(color: Colors.black87),
@@ -152,6 +154,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
   }
 
   Widget _buildFinishedScreen() {
+    final l10n = AppLocalizations.of(context)!;
     final totalQuestions = _cardIndices.length;
     final percentage = totalQuestions > 0
         ? (_score / totalQuestions * 100).round()
@@ -161,9 +164,9 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Quiz Complete!',
-            style: TextStyle(
+          Text(
+            l10n.quiz_complete,
+            style: const TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -171,7 +174,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
           ),
           const SizedBox(height: 24),
           Text(
-            '$_score / $totalQuestions correct',
+            l10n.quiz_correct(_score, totalQuestions),
             style: const TextStyle(fontSize: 28, color: Colors.black87),
           ),
           const SizedBox(height: 16),
@@ -199,9 +202,9 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                child: const Text(
-                  "Finish",
-                  style: TextStyle(fontSize: 28, color: Colors.black87),
+                child: Text(
+                  l10n.common_finish,
+                  style: const TextStyle(fontSize: 28, color: Colors.black87),
                 ),
               ),
             ),
@@ -212,6 +215,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
   }
 
   Widget _buildQuestionScreen(int totalQuestions) {
+    final l10n = AppLocalizations.of(context)!;
     final frontText = widget.deck.words[_cardIndices[_currentIndex]];
 
     return Column(
@@ -219,7 +223,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'Question ${_currentIndex + 1} / $totalQuestions',
+            l10n.quiz_question(_currentIndex + 1, totalQuestions),
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
@@ -260,7 +264,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Text(
-            'Select the correct answer:',
+            l10n.quiz_selectAnswer,
             style: TextStyle(
               fontSize: 18,
               color: Colors.black87.withOpacity(0.7),
@@ -347,7 +351,9 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                   ),
                 ),
                 child: Text(
-                  _currentIndex + 1 >= totalQuestions ? 'See Results' : 'Next',
+                  _currentIndex + 1 >= totalQuestions
+                      ? l10n.quiz_seeResults
+                      : l10n.common_next,
                   style: const TextStyle(fontSize: 24, color: Colors.white),
                 ),
               ),

@@ -1,0 +1,143 @@
+{
+  "@@locale": "zh",
+  
+  "appTitle": "儿童中文识字游戏",
+
+  "deckList_title": "我的词库",
+  "deckList_addDeck": "添加词库",
+  "deckList_addGroup": "添加分组",
+  "deckList_goToGames": "进入游戏",
+  "deckList_noDecks": "暂无词库，立即创建",
+  "deckList_cards": "{count} 张卡片",
+  "deckList_dropToUngroup": "拖至此处以取消分组",
+
+  "dialog_deckName": "词库名称？",
+  "dialog_groupName": "分组名称？",
+  "dialog_newName": "新名称？",
+  "dialog_cancel": "取消",
+  "dialog_ok": "确定",
+  "dialog_delete": "删除",
+  "dialog_rename": "重命名",
+  "dialog_replace": "替换",
+  "dialog_skip": "跳过",
+
+  "deleteGroup_title": "删除分组？",
+  "deleteGroup_message": "确定删除 \"{name}\" 吗？该分组内的词库将变为未分组状态。",
+
+  "deleteDeck_title": "删除词库？",
+  "deleteDeck_message": "确定要删除 \"{name}\" 吗？",
+
+  "tooltip_rename": "重命名",
+  "tooltip_delete": "删除",
+
+  "export_title": "导出词库",
+  "export_selectAll": "全选",
+  "export_button": "导出",
+  "export_success": "已导出 {count} 个词库",
+
+  "import_title": "导入收藏",
+  "import_failed": "导入失败：{error}",
+  "import_processing": "处理中...",
+
+  "conflict_title": "词库名称重复",
+  "conflict_messageGrouped": "在 \"{group}\" 分组中已存在名为 \"{name}\" 的词库。",
+  "conflict_messageUngrouped": "已存在名为 \"{name}\" 的未分组词库。",
+  "conflict_whatToDo": "请选择操作：",
+  "conflict_applyToAll": "对全部剩余冲突应用此操作",
+
+  "importResult_imported": "已导入 {count} 个",
+  "importResult_replaced": "已替换 {count} 个",
+  "importResult_renamed": "已重命名 {count} 个",
+  "importResult_skipped": "已跳过 {count} 个",
+  "importResult_groupsMerged": "已合并 {count} 个分组",
+  "importResult_noChanges": "无任何更改",
+  "importResult_complete": "导入完成：{details}",
+
+  "gameSelection_title": "游戏",
+  "gameSelection_selectMode": "选择游戏模式",
+  "gameSelection_playing": "当前词库：{name}",
+
+  "game_recallFront_title": "认读模式：只看正面",
+  "game_recallFront_desc": "逐张卡片练习。认识请点“认识”，不熟请点“再试”。标记“再试”的卡片会反复出现，直到掌握。",
+
+  "game_recallBoth_title": "认读模式：正反结合",
+  "game_recallBoth_desc": "先看正面，点击翻转查看背面答案。适合自测词汇，确认答案后再评分。",
+
+  "game_randomMulti_title": "随机模式：多词库（只看正面）",
+  "game_randomMulti_desc": "组合多个词库同时练习。从每个选中词库随机抽取一张卡片同时展示。适合跨主题快速复习。",
+
+  "game_reverseRecall_title": "反向认读",
+  "game_reverseRecall_desc": "先显示背面文字，点击翻转查看正面。测试反向联想，例如看释义回忆词语。",
+
+  "game_multipleChoice_title": "选择题测验",
+  "game_multipleChoice_desc": "看正面，从4个选项中选出正确的背面。错误答案来自词库中的其他卡片。系统会记录得分。",
+
+  "game_memory_title": "记忆配对",
+  "game_memory_desc": "经典记忆游戏：每次翻转两张卡片，匹配正面与背面对应的卡片。记录完成游戏所需步数。",
+  "game_memoryMatch_title": "记忆配对",
+  "game_memoryMatch_desc": "经典记忆游戏：每次翻转两张卡片，匹配正面与背面对应的卡片。记录完成游戏所需步数。",
+  "game_noBackText": "这个词库的卡片都没有背面文字",
+
+  "repeatWords_title": "重复练习？",
+  "repeatWords_no": "不重复",
+  "repeatWords_yes": "重复练习",
+  "chooseDeck_title": "选择词库",
+  "selectDecks_title": "选择词库",
+
+  "editor_title": "编辑：{name}",
+  "editor_noGroup": "未分组",
+  "editor_addFirstCard": "添加第一张卡片！",
+  "editor_front": "正面",
+  "editor_back": "背面（可选）",
+  "editor_addCard": "添加卡片",
+  "editor_editCard": "编辑卡片",
+  "editor_save": "保存",
+  "editor_selectGroup": "选择分组",
+  
+  "deckEditor_edit": "编辑：{name}",
+  "deckEditor_noGroup": "未分组",
+  "deckEditor_selectGroup": "选择分组",
+  "deckEditor_addFirst": "添加第一张卡片！",
+  "deckEditor_front": "正面",
+  "deckEditor_back": "背面（可选）",
+  "deckEditor_addCard": "添加卡片",
+  "deckEditor_editCard": "编辑卡片",
+  "deckEditor_save": "保存",
+
+  "common_again": "再试",
+  "common_good": "认识",
+  "common_finish": "完成",
+  "common_next": "下一张",
+  "common_congratulations": "恭喜你！所有卡片都掌握啦！",
+  "common_tapToFlip": "点击翻转",
+  "common_tapToReveal": "点击显示答案",
+  "common_allDone": "全部完成！",
+  "common_noBackText": "这个词库的卡片都没有背面文字",
+  
+  "game_cardsLeft": "剩余卡片：{remaining} / {total}",
+  "game_congratulations": "恭喜你！所有卡片都掌握啦！",
+  "game_again": "再试",
+  "game_good": "认识",
+  "game_finish": "完成",
+  "game_tapToFlip": "点击翻转",
+  "game_tapToReveal": "点击显示答案",
+  "game_allDone": "全部完成！",
+  "game_next": "下一张",
+  "game_multiDeck": "多词库（{count}）",
+
+  "memory_youWin": "你赢了！",
+  "memory_moves": "步数",
+  "memory_matches": "配对",
+  "memory_completedMoves": "用了 {count} 步完成",
+
+  "quiz_complete": "测验完成！",
+  "quiz_correct": "答对 {correct} / {total} 题",
+  "quiz_seeResults": "查看结果",
+  "quiz_question": "第 {current} / {total} 题",
+  "quiz_selectAnswer": "选择正确答案：",
+
+  "cardsLeft": "剩余卡片：{current} / {total}",
+
+  "lang_english": "EN",
+  "lang_chinese": "中文"
+}

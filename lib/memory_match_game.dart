@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'models.dart';
 import 'dart:math';
 
@@ -115,11 +116,12 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isFinished = _matches >= _totalPairs;
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(color: Colors.black87),
+        leading: const BackButton(color: Colors.black87),
         title: Text(
           widget.deck.name,
           style: const TextStyle(color: Colors.black87),
@@ -146,8 +148,8 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStat('Moves', _moves),
-                    _buildStat('Matches', '$_matches / $_totalPairs'),
+                    _buildStat(l10n.memory_moves, _moves),
+                    _buildStat(l10n.memory_matches, '$_matches / $_totalPairs'),
                   ],
                 ),
               ),
@@ -188,13 +190,15 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
   }
 
   Widget _buildFinishedScreen() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'You Win!',
-            style: TextStyle(
+          Text(
+            l10n.memory_youWin,
+            style: const TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -202,7 +206,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
           ),
           const SizedBox(height: 16),
           Text(
-            'Completed in $_moves moves',
+            l10n.memory_completedMoves(_moves),
             style: const TextStyle(fontSize: 24, color: Colors.black87),
           ),
           const SizedBox(height: 40),
@@ -219,9 +223,9 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                child: const Text(
-                  "Finish",
-                  style: TextStyle(fontSize: 28, color: Colors.black87),
+                child: Text(
+                  l10n.common_finish,
+                  style: const TextStyle(fontSize: 28, color: Colors.black87),
                 ),
               ),
             ),

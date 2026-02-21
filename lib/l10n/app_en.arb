@@ -1,0 +1,611 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "Kids Chinese Word Game",
+  "@appTitle": {
+    "description": "Application title"
+  },
+
+  "deckList_title": "Your Decks",
+  "@deckList_title": {
+    "description": "Title on the deck list screen"
+  },
+  "deckList_addDeck": "Add Deck",
+  "@deckList_addDeck": {
+    "description": "Button to add a new deck"
+  },
+  "deckList_addGroup": "Add Group",
+  "@deckList_addGroup": {
+    "description": "Button to add a new group"
+  },
+  "deckList_goToGames": "Go to Games",
+  "@deckList_goToGames": {
+    "description": "Button to navigate to games screen"
+  },
+  "deckList_noDecks": "No decks yet. Create one!",
+  "@deckList_noDecks": {
+    "description": "Message shown when there are no decks"
+  },
+  "deckList_cards": "{count, plural, =1{1 card} other{{count} cards}}",
+  "@deckList_cards": {
+    "description": "Card count display, e.g. '5 cards'",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deckList_dropToUngroup": "Drop here to ungroup",
+  "@deckList_dropToUngroup": {
+    "description": "Drop zone hint for ungrouping decks"
+  },
+
+  "dialog_deckName": "Deck name?",
+  "@dialog_deckName": {
+    "description": "Prompt for deck name input"
+  },
+  "dialog_groupName": "Group name?",
+  "@dialog_groupName": {
+    "description": "Prompt for group name input"
+  },
+  "dialog_newName": "New name?",
+  "@dialog_newName": {
+    "description": "Prompt for new name input"
+  },
+  "dialog_cancel": "Cancel",
+  "@dialog_cancel": {
+    "description": "Cancel button in dialogs"
+  },
+  "dialog_ok": "OK",
+  "@dialog_ok": {
+    "description": "OK button in dialogs"
+  },
+  "dialog_delete": "Delete",
+  "@dialog_delete": {
+    "description": "Delete button in dialogs"
+  },
+  "dialog_rename": "Rename",
+  "@dialog_rename": {
+    "description": "Rename button in dialogs"
+  },
+  "dialog_replace": "Replace",
+  "@dialog_replace": {
+    "description": "Replace button in dialogs"
+  },
+  "dialog_skip": "Skip",
+  "@dialog_skip": {
+    "description": "Skip button in dialogs"
+  },
+
+  "deleteGroup_title": "Delete group?",
+  "@deleteGroup_title": {
+    "description": "Title of delete group confirmation dialog"
+  },
+  "deleteGroup_message": "Delete \"{name}\"? Decks in this group will become ungrouped.",
+  "@deleteGroup_message": {
+    "description": "Message in delete group confirmation dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "deleteDeck_title": "Delete deck?",
+  "@deleteDeck_title": {
+    "description": "Title of delete deck confirmation dialog"
+  },
+  "deleteDeck_message": "Are you sure you want to delete \"{name}\"?",
+  "@deleteDeck_message": {
+    "description": "Message in delete deck confirmation dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tooltip_rename": "Rename",
+  "@tooltip_rename": {
+    "description": "Tooltip for rename button"
+  },
+  "tooltip_delete": "Delete",
+  "@tooltip_delete": {
+    "description": "Tooltip for delete button"
+  },
+
+  "export_title": "Export Decks",
+  "@export_title": {
+    "description": "Title of export dialog"
+  },
+  "export_selectAll": "Select All",
+  "@export_selectAll": {
+    "description": "Select all checkbox label"
+  },
+  "export_button": "Export",
+  "@export_button": {
+    "description": "Export button"
+  },
+  "export_success": "Exported {count} deck(s)",
+  "@export_success": {
+    "description": "Success message after export",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "import_title": "Import Collection",
+  "@import_title": {
+    "description": "Title for import dialog"
+  },
+  "import_failed": "Import failed: {error}",
+  "@import_failed": {
+    "description": "Error message for failed import",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "import_processing": "Processing...",
+  "@import_processing": {
+    "description": "Processing message during import"
+  },
+
+  "conflict_title": "Duplicate Deck Name",
+  "@conflict_title": {
+    "description": "Title for conflict resolution dialog"
+  },
+  "conflict_messageGrouped": "A deck named \"{name}\" already exists in \"{group}\".",
+  "@conflict_messageGrouped": {
+    "description": "Conflict message for deck in a group",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "conflict_messageUngrouped": "An ungrouped deck named \"{name}\" already exists.",
+  "@conflict_messageUngrouped": {
+    "description": "Conflict message for ungrouped deck",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conflict_whatToDo": "What would you like to do?",
+  "@conflict_whatToDo": {
+    "description": "Prompt in conflict dialog"
+  },
+  "conflict_applyToAll": "Apply to all remaining conflicts",
+  "@conflict_applyToAll": {
+    "description": "Checkbox to apply resolution to all conflicts"
+  },
+
+  "importResult_imported": "{count} imported",
+  "@importResult_imported": {
+    "description": "Import result: count imported",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importResult_replaced": "{count} replaced",
+  "@importResult_replaced": {
+    "description": "Import result: count replaced",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importResult_renamed": "{count} renamed",
+  "@importResult_renamed": {
+    "description": "Import result: count renamed",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importResult_skipped": "{count} skipped",
+  "@importResult_skipped": {
+    "description": "Import result: count skipped",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importResult_groupsMerged": "{count} groups merged",
+  "@importResult_groupsMerged": {
+    "description": "Import result: count groups merged",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importResult_noChanges": "No changes made",
+  "@importResult_noChanges": {
+    "description": "Import result when nothing changed"
+  },
+  "importResult_complete": "Import complete: {details}",
+  "@importResult_complete": {
+    "description": "Import complete message with details",
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+
+  "gameSelection_title": "Games",
+  "@gameSelection_title": {
+    "description": "Title on game selection screen"
+  },
+  "gameSelection_selectMode": "Select Game Mode",
+  "@gameSelection_selectMode": {
+    "description": "Prompt to select a game mode"
+  },
+  "gameSelection_playing": "Playing: {name}",
+  "@gameSelection_playing": {
+    "description": "Shows which deck is being played",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "game_recallFront_title": "Recall: Front Only",
+  "@game_recallFront_title": {
+    "description": "Title for Recall Front Only game"
+  },
+  "game_recallFront_desc": "Practice cards one at a time. Mark each as \"Good\" if you know it or \"Again\" to retry later. Cards you mark \"Again\" will reappear until cleared.",
+  "@game_recallFront_desc": {
+    "description": "Description for Recall Front Only game"
+  },
+
+  "game_recallBoth_title": "Recall: Front & Back",
+  "@game_recallBoth_title": {
+    "description": "Title for Recall Front & Back game"
+  },
+  "game_recallBoth_desc": "See the front, then tap to flip and reveal the back. Great for vocabulary where you want to check your answer before rating.",
+  "@game_recallBoth_desc": {
+    "description": "Description for Recall Front & Back game"
+  },
+
+  "game_randomMulti_title": "Random: Multi Deck (Front only)",
+  "@game_randomMulti_title": {
+    "description": "Title for Random Multi Deck game"
+  },
+  "game_randomMulti_desc": "Combine multiple decks into one session. Shows one random word from each selected deck simultaneously. Great for rapid review across subjects.",
+  "@game_randomMulti_desc": {
+    "description": "Description for Random Multi Deck game"
+  },
+
+  "game_reverseRecall_title": "Reverse Recall",
+  "@game_reverseRecall_title": {
+    "description": "Title for Reverse Recall game"
+  },
+  "game_reverseRecall_desc": "Shows the back text first - tap to reveal the front. Tests reverse associations, like showing a definition to recall the word.",
+  "@game_reverseRecall_desc": {
+    "description": "Description for Reverse Recall game"
+  },
+
+  "game_multipleChoice_title": "Multiple Choice Quiz",
+  "@game_multipleChoice_title": {
+    "description": "Title for Multiple Choice game"
+  },
+  "game_multipleChoice_desc": "See the front and pick the correct back from 4 options. Wrong answers come from other cards in the deck. Tracks your score.",
+  "@game_multipleChoice_desc": {
+    "description": "Description for Multiple Choice game"
+  },
+
+  "game_memoryMatch_title": "Memory Match",
+  "@game_memoryMatch_title": {
+    "description": "Title for Memory Match game"
+  },
+  "game_memoryMatch_desc": "Classic memory game: flip two cards at a time to find matching front/back pairs. Tracks moves taken to complete.",
+  "@game_memoryMatch_desc": {
+    "description": "Description for Memory Match game"
+  },
+
+  "game_noBackText": "This deck has no cards with back text",
+  "@game_noBackText": {
+    "description": "Error when deck has no back text for games that need it"
+  },
+
+  "chooseDeck_title": "Choose deck",
+  "@chooseDeck_title": {
+    "description": "Title for deck selection dialog"
+  },
+  "selectDecks_title": "Select decks",
+  "@selectDecks_title": {
+    "description": "Title for multiple deck selection dialog"
+  },
+  "repeatWords_title": "Repeat words?",
+  "@repeatWords_title": {
+    "description": "Title for repeat words dialog"
+  },
+  "repeatWords_no": "No",
+  "@repeatWords_no": {
+    "description": "No option for repeat words"
+  },
+  "repeatWords_yes": "Yes",
+  "@repeatWords_yes": {
+    "description": "Yes option for repeat words"
+  },
+
+  "deckEditor_edit": "Edit: {name}",
+  "@deckEditor_edit": {
+    "description": "Title for deck editor screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deckEditor_noGroup": "No Group",
+  "@deckEditor_noGroup": {
+    "description": "Label when deck has no group"
+  },
+  "deckEditor_selectGroup": "Select Group",
+  "@deckEditor_selectGroup": {
+    "description": "Title for group selection dialog"
+  },
+  "deckEditor_addFirst": "Add your first card!",
+  "@deckEditor_addFirst": {
+    "description": "Prompt when deck is empty"
+  },
+  "deckEditor_front": "Front",
+  "@deckEditor_front": {
+    "description": "Label for front text input"
+  },
+  "deckEditor_back": "Back (optional)",
+  "@deckEditor_back": {
+    "description": "Label for back text input"
+  },
+  "deckEditor_addCard": "Add Card",
+  "@deckEditor_addCard": {
+    "description": "Button to add a card"
+  },
+  "deckEditor_editCard": "Edit Card",
+  "@deckEditor_editCard": {
+    "description": "Title for edit card dialog"
+  },
+  "deckEditor_save": "Save",
+  "@deckEditor_save": {
+    "description": "Save button in edit card dialog"
+  },
+
+  "game_cardsLeft": "Cards left: {remaining} / {total}",
+  "@game_cardsLeft": {
+    "description": "Progress indicator in card games",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "game_congratulations": "Congratulations! You cleared all the cards!",
+  "@game_congratulations": {
+    "description": "Message when all cards are cleared"
+  },
+  "game_again": "Again",
+  "@game_again": {
+    "description": "Button to retry a card"
+  },
+  "game_good": "Good",
+  "@game_good": {
+    "description": "Button to mark card as known"
+  },
+  "game_finish": "Finish",
+  "@game_finish": {
+    "description": "Button to finish/exit game"
+  },
+  "game_tapToFlip": "Tap to flip",
+  "@game_tapToFlip": {
+    "description": "Hint to tap card to flip"
+  },
+  "game_tapToReveal": "Tap to reveal answer",
+  "@game_tapToReveal": {
+    "description": "Hint to tap card to reveal answer"
+  },
+  "game_allDone": "All done!",
+  "@game_allDone": {
+    "description": "Message when game is complete"
+  },
+  "game_next": "Next",
+  "@game_next": {
+    "description": "Button for next card"
+  },
+  "game_multiDeck": "Multi Deck ({count})",
+  "@game_multiDeck": {
+    "description": "Title for multi deck game",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "quiz_complete": "Quiz Complete!",
+  "@quiz_complete": {
+    "description": "Title when quiz is finished"
+  },
+  "quiz_correct": "{score} / {total} correct",
+  "@quiz_correct": {
+    "description": "Score display after quiz",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_question": "Question {current} / {total}",
+  "@quiz_question": {
+    "description": "Question progress indicator",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_selectAnswer": "Select the correct answer:",
+  "@quiz_selectAnswer": {
+    "description": "Prompt to select an answer"
+  },
+  "quiz_seeResults": "See Results",
+  "@quiz_seeResults": {
+    "description": "Button to see quiz results"
+  },
+
+  "memory_youWin": "You Win!",
+  "@memory_youWin": {
+    "description": "Win message for memory game"
+  },
+  "memory_moves": "Moves",
+  "@memory_moves": {
+    "description": "Label for move count"
+  },
+  "memory_matches": "Matches",
+  "@memory_matches": {
+    "description": "Label for match count"
+  },
+  "memory_completedMoves": "Completed in {count} moves",
+  "@memory_completedMoves": {
+    "description": "Completion message with move count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "quiz_complete": "Quiz Complete!",
+  "@quiz_complete": {
+    "description": "Title when quiz finishes"
+  },
+  "quiz_correct": "{correct} / {total} correct",
+  "@quiz_correct": {
+    "description": "Score display after quiz",
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quiz_seeResults": "See Results",
+  "@quiz_seeResults": {
+    "description": "Button to see quiz results"
+  },
+
+  "common_again": "Again",
+  "@common_again": {
+    "description": "Button to mark card for retry"
+  },
+  "common_good": "Good",
+  "@common_good": {
+    "description": "Button to mark card as known"
+  },
+  "common_finish": "Finish",
+  "@common_finish": {
+    "description": "Finish button"
+  },
+  "common_next": "Next",
+  "@common_next": {
+    "description": "Next button"
+  },
+  "common_congratulations": "Congratulations! You cleared all the cards!",
+  "@common_congratulations": {
+    "description": "Congratulations message after completing a game"
+  },
+  "common_tapToFlip": "Tap to flip",
+  "@common_tapToFlip": {
+    "description": "Hint to tap card to flip"
+  },
+  "common_tapToReveal": "Tap to reveal answer",
+  "@common_tapToReveal": {
+    "description": "Hint to tap card to reveal answer"
+  },
+  "common_allDone": "All done!",
+  "@common_allDone": {
+    "description": "Completion message"
+  },
+  "common_noBackText": "This deck has no cards with back text",
+  "@common_noBackText": {
+    "description": "Error when deck has no back text"
+  },
+
+  "editor_title": "Edit: {name}",
+  "@editor_title": {
+    "description": "Title for deck editor screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editor_noGroup": "No Group",
+  "@editor_noGroup": {
+    "description": "Label for ungrouped deck"
+  },
+  "editor_addFirstCard": "Add your first card!",
+  "@editor_addFirstCard": {
+    "description": "Prompt when deck is empty"
+  },
+  "editor_front": "Front",
+  "@editor_front": {
+    "description": "Label for front side of card"
+  },
+  "editor_back": "Back (optional)",
+  "@editor_back": {
+    "description": "Label for back side of card"
+  },
+  "editor_addCard": "Add Card",
+  "@editor_addCard": {
+    "description": "Button to add a card"
+  },
+  "editor_editCard": "Edit Card",
+  "@editor_editCard": {
+    "description": "Title for edit card dialog"
+  },
+  "editor_save": "Save",
+  "@editor_save": {
+    "description": "Save button"
+  },
+  "editor_selectGroup": "Select Group",
+  "@editor_selectGroup": {
+    "description": "Title for group selection dialog"
+  },
+
+  "lang_english": "EN",
+  "@lang_english": {
+    "description": "Short label for English language"
+  },
+  "lang_chinese": "中文",
+  "@lang_chinese": {
+    "description": "Short label for Chinese language"
+  }
+}
