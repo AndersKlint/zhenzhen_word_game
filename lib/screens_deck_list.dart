@@ -568,13 +568,11 @@ class _DeckListScaffoldState extends State<DeckListScaffold> {
 
     final child = _buildDeckCardContent(deck);
 
-    final isDesktop =
-        !kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.macOS ||
-            defaultTargetPlatform == TargetPlatform.linux ||
-            defaultTargetPlatform == TargetPlatform.windows);
+    final isMobile =
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android;
 
-    if (isDesktop) {
+    if (!isMobile) {
       return Draggable<String>(
         data: deck.id,
         feedback: feedback,
