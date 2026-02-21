@@ -1,11 +1,11 @@
 {
-    "name": "zhenzhen_word_game",
-    "short_name": "zhenzhen_word_game",
+    "name": "Zhenzhen Word Game",
+    "short_name": "Word Game",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A vocabulary learning game with multiple game modes.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
