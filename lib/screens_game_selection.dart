@@ -264,28 +264,64 @@ class GameSelectionScreen extends StatelessWidget {
                     ),
                   ),
                 for (final group in ds.groups) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                    child: Text(
-                      group.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
-                    ),
+                  Builder(
+                    builder: (context) {
+                      final groupDecks = ds.getGroupDecks(group.id);
+                      final allSelected =
+                          groupDecks.isNotEmpty &&
+                          groupDecks.every((d) => selected.contains(d));
+                      final anySelected = groupDecks.any(
+                        (d) => selected.contains(d),
+                      );
+                      final groupValue = allSelected
+                          ? true
+                          : (anySelected ? null : false);
+
+                      return CheckboxListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.only(
+                          left: 0,
+                          right: 16,
+                        ),
+                        secondary: Icon(
+                          Icons.folder,
+                          color: Colors.purple.shade400,
+                          size: 20,
+                        ),
+                        title: Text(
+                          group.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        value: groupValue,
+                        tristate: true,
+                        onChanged: (val) => setDialogState(() {
+                          if (val == true) {
+                            for (final d in groupDecks) {
+                              selected.add(d);
+                            }
+                          } else {
+                            for (final d in groupDecks) {
+                              selected.remove(d);
+                            }
+                          }
+                        }),
+                      );
+                    },
                   ),
                   for (final d in ds.getGroupDecks(group.id))
-                    CheckboxListTile(
-                      dense: true,
-                      contentPadding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                      ),
-                      title: Text(d.name),
-                      value: selected.contains(d),
-                      onChanged: (val) => setDialogState(
-                        () => val! ? selected.add(d) : selected.remove(d),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: CheckboxListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                        ),
+                        title: Text(d.name),
+                        value: selected.contains(d),
+                        onChanged: (val) => setDialogState(
+                          () => val! ? selected.add(d) : selected.remove(d),
+                        ),
                       ),
                     ),
                 ],

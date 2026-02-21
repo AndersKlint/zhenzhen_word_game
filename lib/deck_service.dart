@@ -4,6 +4,24 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 
+class ImportResult {
+  final int decksImported;
+  final int decksSkipped;
+  final int decksReplaced;
+  final int decksRenamed;
+  final int groupsMerged;
+
+  ImportResult({
+    required this.decksImported,
+    required this.decksSkipped,
+    required this.decksReplaced,
+    required this.decksRenamed,
+    required this.groupsMerged,
+  });
+}
+
+enum ConflictResolution { replace, skip, rename }
+
 class DeckService extends ChangeNotifier {
   List<Deck> decks = [];
   List<DeckGroup> groups = [];
@@ -139,5 +157,146 @@ class DeckService extends ChangeNotifier {
     } catch (_) {
       return null;
     }
+  }
+
+  DeckGroup? getGroupByName(String name) {
+    try {
+      return groups.firstWhere((g) => g.name == name);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Deck? getDeckByName(String name, {String? groupId}) {
+    try {
+      return decks.firstWhere((d) => d.name == name && d.groupId == groupId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String _findAvailableName(String baseName, {String? groupId}) {
+    var name = baseName;
+    var suffix = 1;
+    while (getDeckByName(name, groupId: groupId) != null) {
+      final match = RegExp(r'^(.+?)\s*\((\d+)\)$').firstMatch(baseName);
+      if (match != null) {
+        name = '${match.group(1)} (${suffix})';
+      } else {
+        name = '$baseName ($suffix)';
+      }
+      suffix++;
+    }
+    return name;
+  }
+
+  String exportCollection(Set<Deck> selectedDecks) {
+    final groupIdsToExport = <String>{};
+    for (final deck in selectedDecks) {
+      if (deck.groupId != null) {
+        groupIdsToExport.add(deck.groupId!);
+      }
+    }
+
+    final exportedGroups = groups
+        .where((g) => groupIdsToExport.contains(g.id))
+        .map((g) => g.toJson())
+        .toList();
+
+    final exportedDecks = selectedDecks.map((d) => d.toJson()).toList();
+
+    return jsonEncode({
+      'version': 1,
+      'exportedAt': DateTime.now().toIso8601String(),
+      'groups': exportedGroups,
+      'decks': exportedDecks,
+    });
+  }
+
+  Future<ImportResult> importCollection(
+    String json, {
+    required ConflictResolution Function(String deckName, String? groupId)
+    onConflict,
+  }) async {
+    final data = jsonDecode(json) as Map<String, dynamic>;
+    final version = data['version'] as int?;
+    if (version != 1) {
+      throw FormatException('Unsupported export version: $version');
+    }
+
+    final importedGroups = (data['groups'] as List)
+        .map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+    final importedDecks = (data['decks'] as List)
+        .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+
+    final oldToNewGroupId = <String, String>{};
+    int groupsMerged = 0;
+
+    for (final importedGroup in importedGroups) {
+      final existing = getGroupByName(importedGroup.name);
+      if (existing != null) {
+        oldToNewGroupId[importedGroup.id] = existing.id;
+        groupsMerged++;
+      } else {
+        final newId = _id();
+        oldToNewGroupId[importedGroup.id] = newId;
+        groups.add(DeckGroup(id: newId, name: importedGroup.name));
+      }
+    }
+
+    int decksImported = 0;
+    int decksSkipped = 0;
+    int decksReplaced = 0;
+    int decksRenamed = 0;
+
+    for (final importedDeck in importedDecks) {
+      final newGroupId = importedDeck.groupId != null
+          ? oldToNewGroupId[importedDeck.groupId]
+          : null;
+
+      final existing = getDeckByName(importedDeck.name, groupId: newGroupId);
+
+      String deckName = importedDeck.name;
+
+      if (existing != null) {
+        final resolution = onConflict(importedDeck.name, newGroupId);
+        if (resolution == ConflictResolution.skip) {
+          decksSkipped++;
+          continue;
+        } else if (resolution == ConflictResolution.replace) {
+          decks.remove(existing);
+          decksReplaced++;
+        } else if (resolution == ConflictResolution.rename) {
+          deckName = _findAvailableName(importedDeck.name, groupId: newGroupId);
+          decksRenamed++;
+        }
+      }
+
+      final newId = _id();
+
+      decks.add(
+        Deck(
+          id: newId,
+          name: deckName,
+          words: importedDeck.words,
+          backs: importedDeck.backs,
+          groupId: newGroupId,
+        ),
+      );
+      decksImported++;
+    }
+
+    await _save();
+    notifyListeners();
+
+    return ImportResult(
+      decksImported: decksImported,
+      decksSkipped: decksSkipped,
+      decksReplaced: decksReplaced,
+      groupsMerged: groupsMerged,
+      decksRenamed: decksRenamed,
+    );
   }
 }

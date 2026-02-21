@@ -37,6 +37,7 @@ dependencies:
   shared_preferences: ^2.5.3
   google_fonts: ^6.3.2
   get_it: ^9.1.0
+  file_picker: ^8.1.7
 
 dev_dependencies:
   flutter_test:
