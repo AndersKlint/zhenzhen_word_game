@@ -137,22 +137,28 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
         height: double.infinity,
         decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStat(l10n.memory_moves, _moves),
-                    _buildStat(l10n.memory_matches, '$_matches / $_totalPairs'),
-                  ],
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStat(l10n.memory_moves, _moves),
+                      _buildStat(
+                        l10n.memory_matches,
+                        '$_matches / $_totalPairs',
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: isFinished ? _buildFinishedScreen() : _buildGameGrid(),
-              ),
-            ],
+                Expanded(
+                  child: isFinished ? _buildFinishedScreen() : _buildGameGrid(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -241,20 +247,58 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
   }
 
   Widget _buildGameGrid() {
-    final crossAxisCount = _tiles.length <= 8
-        ? 4
-        : (_tiles.length <= 16 ? 6 : 8);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const padding = 48.0; // 16 top + 32 bottom
+        const spacing = 8.0;
+        const minCardSize = 50.0;
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 1.0,
-      ),
-      itemCount: _tiles.length,
-      itemBuilder: (context, index) => _buildTile(index),
+        final availableWidth = constraints.maxWidth - padding;
+        final availableHeight = constraints.maxHeight - padding;
+        final tileCount = _tiles.length;
+
+        // Start with a reasonable column count based on tile count
+        int startCols;
+        if (tileCount <= 4) {
+          startCols = 2;
+        } else if (tileCount <= 6) {
+          startCols = 3;
+        } else if (tileCount <= 9) {
+          startCols = 4;
+        } else if (tileCount <= 16) {
+          startCols = 6;
+        } else {
+          startCols = 8;
+        }
+
+        // Try from starting column count, adjusting based on available space
+        int crossAxisCount = startCols.clamp(2, 8);
+
+        // Try to fit with larger cards first (fewer columns)
+        for (int cols = startCols; cols >= 2; cols--) {
+          final rows = (tileCount / cols).ceil();
+          final cardWidth = (availableWidth - (cols - 1) * spacing) / cols;
+          final cardHeight = (availableHeight - (rows - 1) * spacing) / rows;
+          final cardSize = cardWidth < cardHeight ? cardWidth : cardHeight;
+
+          if (cardSize >= minCardSize) {
+            crossAxisCount = cols;
+            break;
+          }
+        }
+
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: tileCount,
+          itemBuilder: (context, index) => _buildTile(index),
+        );
+      },
     );
   }
 

@@ -68,54 +68,91 @@ class _RandomWordGameState extends State<RandomWordGame>
     );
   }
 
-  double _getFontSize(String text) {
-    if (text.length <= 5) return 50;
-    if (text.length <= 10) return 40;
-    if (text.length <= 15) return 30;
-    return 28;
-  }
-
-  Widget _buildCard(String text) {
-    final fontSize = _getFontSize(text);
+  Widget _buildCard(String text, double fontSize, double cardSize) {
     final textColor = widget.theme.isModest
         ? widget.theme.primaryTextColor
         : Colors.white;
 
-    return ScaleTransition(
-      scale: CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
-      child: Container(
-        constraints: const BoxConstraints(
-          minWidth: 120,
-          minHeight: 80,
-          maxWidth: 250,
-          maxHeight: 200,
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: _randomGradient(),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
+    return Container(
+      width: cardSize,
+      height: cardSize,
+      margin: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(cardSize * 0.08),
+      decoration: BoxDecoration(
+        gradient: _randomGradient(),
+        borderRadius: BorderRadius.circular(cardSize * 0.15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: textColor,
           ),
         ),
       ),
     );
+  }
+
+  ({double cardSize, double fontSize}) _calculateCardSize(
+    int cardCount,
+    double availableWidth,
+    double availableHeight,
+  ) {
+    const spacing = 8.0;
+    const minCardSize = 60.0;
+    const maxCardSize = 120.0;
+
+    // Start with a reasonable column count based on card count
+    int startCols;
+    if (cardCount <= 2) {
+      startCols = 2;
+    } else if (cardCount <= 4) {
+      startCols = 3;
+    } else if (cardCount <= 6) {
+      startCols = 4;
+    } else {
+      startCols = 6;
+    }
+
+    // Try from starting column count, adjusting based on available space
+    // Try larger cards first (fewer columns)
+    for (int cols = startCols; cols >= 2; cols--) {
+      final rows = (cardCount / cols).ceil();
+      final cardWidth = (availableWidth - (cols - 1) * spacing) / cols;
+      final cardHeight = (availableHeight - (rows - 1) * spacing) / rows;
+      final cardSize = cardWidth < cardHeight ? cardWidth : cardHeight;
+
+      if (cardSize >= minCardSize) {
+        // Calculate font size based on card size
+        final fontSizeRatio = cardSize / maxCardSize;
+        double fontSize;
+        if (cardCount <= 2) {
+          fontSize = 32 * fontSizeRatio;
+        } else if (cardCount <= 4) {
+          fontSize = 24 * fontSizeRatio;
+        } else if (cardCount <= 6) {
+          fontSize = 18 * fontSizeRatio;
+        } else {
+          fontSize = 16 * fontSizeRatio;
+        }
+        fontSize = fontSize.clamp(10.0, 32.0);
+
+        return (cardSize: cardSize, fontSize: fontSize);
+      }
+    }
+
+    // Fallback to minimum size
+    return (cardSize: minCardSize, fontSize: 10.0);
   }
 
   @override
@@ -134,60 +171,107 @@ class _RandomWordGameState extends State<RandomWordGame>
         height: double.infinity,
         decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Center(
-                  child: finished
-                      ? Text(
-                          l10n.common_allDone,
-                          style: TextStyle(
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold,
-                            color: widget.theme.primaryTextColor,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: finished
+                        ? Text(
+                            l10n.common_allDone,
+                            style: TextStyle(
+                              fontSize: 50,
+                              fontWeight: FontWeight.bold,
+                              color: widget.theme.primaryTextColor,
+                            ),
+                          )
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              final cardCount = current
+                                  .where((c) => c.isNotEmpty)
+                                  .length;
+                              // GridView has padding of 16 top + 24 bottom = 40
+                              final availableHeight =
+                                  constraints.maxHeight - 40;
+                              final ({double cardSize, double fontSize})
+                              sizing = _calculateCardSize(
+                                cardCount,
+                                constraints.maxWidth,
+                                availableHeight,
+                              );
+                              final cols =
+                                  (constraints.maxWidth / sizing.cardSize)
+                                      .floor()
+                                      .clamp(2, 6);
+
+                              return GridView.builder(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  16,
+                                  16,
+                                  24,
+                                ),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: cols,
+                                      crossAxisSpacing: 8,
+                                      mainAxisSpacing: 8,
+                                      childAspectRatio: 1.0,
+                                    ),
+                                itemCount: cardCount,
+                                itemBuilder: (context, index) {
+                                  final nonEmptyCards = current
+                                      .where((c) => c.isNotEmpty)
+                                      .toList();
+                                  return ScaleTransition(
+                                    scale: CurvedAnimation(
+                                      parent: _animController,
+                                      curve: Curves.elasticOut,
+                                    ),
+                                    child: _buildCard(
+                                      nonEmptyCards[index],
+                                      sizing.fontSize,
+                                      sizing.cardSize,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                           ),
-                        )
-                      : SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: current
-                                .where((c) => c.isNotEmpty)
-                                .map(_buildCard)
-                                .toList(),
-                          ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 16,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 70,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.theme.buttonColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 16,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 70,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.theme.buttonColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
                       ),
-                    ),
-                    onPressed: finished ? () => Navigator.pop(context) : _next,
-                    child: Text(
-                      finished ? l10n.common_finish : l10n.common_next,
-                      style: TextStyle(
-                        fontSize: 28,
-                        color: widget.theme.buttonTextColor,
+                      onPressed: finished
+                          ? () => Navigator.pop(context)
+                          : _next,
+                      child: Text(
+                        finished ? l10n.common_finish : l10n.common_next,
+                        style: TextStyle(
+                          fontSize: 28,
+                          color: widget.theme.buttonTextColor,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

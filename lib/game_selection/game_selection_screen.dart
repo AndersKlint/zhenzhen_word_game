@@ -36,42 +36,45 @@ class GameSelectionScreen extends StatelessWidget {
         height: double.infinity,
         decoration: BoxDecoration(gradient: theme.backgroundGradient),
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  preselectedDeck != null
-                      ? l10n.gameSelection_playing(preselectedDeck!.name)
-                      : l10n.gameSelection_selectMode,
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: theme.primaryTextColor,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    preselectedDeck != null
+                        ? l10n.gameSelection_playing(preselectedDeck!.name)
+                        : l10n.gameSelection_selectMode,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryTextColor,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  children: [
-                    _buildRecallFrontCard(context, l10n, controller),
-                    const SizedBox(height: 24),
-                    _buildRecallBothCard(context, l10n, controller),
-                    const SizedBox(height: 24),
-                    _buildRandomMultiCard(context, l10n, controller),
-                    const SizedBox(height: 24),
-                    _buildReverseRecallCard(context, l10n, controller),
-                    const SizedBox(height: 24),
-                    _buildMultipleChoiceCard(context, l10n, controller),
-                    const SizedBox(height: 24),
-                    _buildMemoryMatchCard(context, l10n, controller),
-                  ],
+                const SizedBox(height: 32),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    children: [
+                      _buildRecallFrontCard(context, l10n, controller),
+                      const SizedBox(height: 24),
+                      _buildRecallBothCard(context, l10n, controller),
+                      const SizedBox(height: 24),
+                      _buildRandomMultiCard(context, l10n, controller),
+                      const SizedBox(height: 24),
+                      _buildReverseRecallCard(context, l10n, controller),
+                      const SizedBox(height: 24),
+                      _buildMultipleChoiceCard(context, l10n, controller),
+                      const SizedBox(height: 24),
+                      _buildMemoryMatchCard(context, l10n, controller),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
