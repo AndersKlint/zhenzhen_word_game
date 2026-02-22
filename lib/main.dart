@@ -4,7 +4,7 @@ import 'l10n/app_localizations.dart';
 import 'di.dart';
 import 'deck_service.dart';
 import 'locale_service.dart';
-import 'screens_deck_list.dart';
+import 'deck_list/deck_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
           ],
           supportedLocales: const [Locale('en'), Locale('zh')],
           theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.purple),
-          home: const DeckListScaffold(),
+          home: const DeckListScreen(),
         );
       },
     );

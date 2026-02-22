@@ -1,0 +1,502 @@
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
+import 'dart:convert';
+import '../l10n/app_localizations.dart';
+import '../deck_service.dart';
+import '../di.dart';
+import '../locale_service.dart';
+import '../models.dart';
+import '../screens_deck_editor.dart';
+import '../screens_game_selection.dart';
+import '../platform/file_export.dart';
+import 'deck_list_controller.dart';
+import 'widgets/deck_card.dart';
+import 'widgets/group_header.dart';
+import 'widgets/ungrouped_drop_zone.dart';
+import 'widgets/deck_list_app_bar.dart';
+import 'widgets/play_button.dart';
+import 'widgets/empty_state.dart';
+import 'widgets/dialogs.dart';
+
+class DeckListScreen extends StatefulWidget {
+  const DeckListScreen({super.key});
+
+  @override
+  State<DeckListScreen> createState() => _DeckListScreenState();
+}
+
+class _DeckListScreenState extends State<DeckListScreen> {
+  late final DeckListController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = DeckListController(
+      deckService: getIt<DeckService>(),
+      localeService: getIt<LocaleService>(),
+    );
+    _controller.addListener(_onControllerChanged);
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onControllerChanged);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      floatingActionButton: _buildFab(l10n),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE1C5E5), Color(0xFF80DEEA)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 16),
+              DeckListAppBar(
+                onExport: () => _showExportDialog(l10n),
+                onImport: () => _importCollection(l10n),
+                title: l10n.deckList_title,
+                exportText: l10n.export_button,
+                importText: l10n.import_title,
+                currentLanguageText: _controller.isEnglish
+                    ? l10n.lang_chinese
+                    : l10n.lang_english,
+                onToggleLanguage: () => _controller.toggleLocale(),
+              ),
+              const SizedBox(height: 16),
+              Expanded(child: _buildDeckList(l10n)),
+              PlayButton(
+                onPressed: () => _navigateToGameSelection(),
+                buttonText: l10n.deckList_goToGames,
+                isEnabled: _controller.state.decks.isNotEmpty,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFab(AppLocalizations l10n) {
+    return PopupMenuButton<String>(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      offset: const Offset(0, -8),
+      onSelected: (value) {
+        if (value == 'deck') {
+          _createDeck(l10n);
+        } else if (value == 'group') {
+          _createGroup(l10n);
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'deck',
+          child: Row(
+            children: [
+              Icon(Icons.add, color: Colors.pink.shade300),
+              const SizedBox(width: 12),
+              Text(l10n.deckList_addDeck),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'group',
+          child: Row(
+            children: [
+              Icon(Icons.folder_outlined, color: Colors.purple.shade300),
+              const SizedBox(width: 12),
+              Text(l10n.deckList_addGroup),
+            ],
+          ),
+        ),
+      ],
+      child: FloatingActionButton(
+        onPressed: null,
+        backgroundColor: Colors.pink.shade300,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
+    );
+  }
+
+  Widget _buildDeckList(AppLocalizations l10n) {
+    final state = _controller.state;
+    final ungroupedDecks = _controller.getUngroupedDecks();
+    final groups = state.groups;
+
+    if (state.isEmpty) {
+      return EmptyState(message: l10n.deckList_noDecks);
+    }
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      children: [
+        UngroupedDropZone(
+          ungroupedDecks: ungroupedDecks,
+          canAcceptDeck: (deckId) {
+            final deck = _controller.getDeck(deckId);
+            return deck.groupId != null;
+          },
+          onDeckDropped: (deckId) {
+            _controller.assignDeckToGroup(deckId, null);
+          },
+          dropToUngroupText: l10n.deckList_dropToUngroup,
+          onEditDeck: (deck) => _navigateToDeckEditor(deck.id),
+          onDeleteDeck: (deck) => _deleteDeck(deck, l10n),
+          onPlayDeck: (deck) => _navigateToGameSelection(preselectedDeck: deck),
+        ),
+        for (final group in groups) ...[_buildGroupSection(group, l10n)],
+      ],
+    );
+  }
+
+  Widget _buildGroupSection(DeckGroup group, AppLocalizations l10n) {
+    final decks = _controller.getGroupDecks(group.id);
+    final isExpanded = _controller.state.isGroupExpanded(group.id);
+
+    return Column(
+      children: [
+        DragTarget<String>(
+          onWillAcceptWithDetails: (details) {
+            final deck = _controller.getDeck(details.data);
+            return deck.groupId != group.id;
+          },
+          onAcceptWithDetails: (details) {
+            _controller.assignDeckToGroup(details.data, group.id);
+          },
+          builder: (context, candidateData, rejectedData) {
+            return GroupHeader(
+              group: group,
+              deckCount: decks.length,
+              isExpanded: isExpanded,
+              isHovering: candidateData.isNotEmpty,
+              onToggleExpand: () => _controller.toggleGroupExpanded(group.id),
+              onRename: () => _renameGroup(group, l10n),
+              onDelete: () => _deleteGroup(group, l10n),
+              onPlay: () => _playGroup(group, decks),
+              renameTooltip: l10n.tooltip_rename,
+              deleteTooltip: l10n.tooltip_delete,
+              canPlay: decks.isNotEmpty,
+            );
+          },
+        ),
+        if (isExpanded)
+          ...decks.map(
+            (deck) => Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: DeckCard(
+                deck: deck,
+                onEdit: () => _navigateToDeckEditor(deck.id),
+                onDelete: () => _deleteDeck(deck, l10n),
+                onPlay: () => _navigateToGameSelection(preselectedDeck: deck),
+                cardCountText: l10n.deckList_cards(deck.words.length),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _createDeck(AppLocalizations l10n) async {
+    final name = await _ask(context, l10n.dialog_deckName);
+    if (name != null && name.trim().isNotEmpty) {
+      await _controller.createDeck(name.trim());
+    }
+  }
+
+  Future<void> _createGroup(AppLocalizations l10n) async {
+    final name = await _ask(context, l10n.dialog_groupName);
+    if (name != null && name.trim().isNotEmpty) {
+      await _controller.createGroup(name.trim());
+    }
+  }
+
+  Future<void> _renameGroup(DeckGroup group, AppLocalizations l10n) async {
+    final name = await _ask(
+      context,
+      l10n.dialog_newName,
+      initialValue: group.name,
+    );
+    if (name != null && name.trim().isNotEmpty) {
+      await _controller.renameGroup(group.id, name.trim());
+    }
+  }
+
+  Future<void> _deleteGroup(DeckGroup group, AppLocalizations l10n) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => DeleteConfirmDialog(
+        title: l10n.deleteGroup_title,
+        message: l10n.deleteGroup_message(group.name),
+        cancelText: l10n.dialog_cancel,
+        deleteText: l10n.dialog_delete,
+      ),
+    );
+    if (confirmed == true) {
+      await _controller.deleteGroup(group.id);
+    }
+  }
+
+  Future<void> _deleteDeck(Deck deck, AppLocalizations l10n) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => DeleteConfirmDialog(
+        title: l10n.deleteDeck_title,
+        message: l10n.deleteDeck_message(deck.name),
+        cancelText: l10n.dialog_cancel,
+        deleteText: l10n.dialog_delete,
+      ),
+    );
+    if (confirmed == true) {
+      await _controller.deleteDeck(deck.id);
+    }
+  }
+
+  void _playGroup(DeckGroup group, List<Deck> decks) {
+    final combinedDeck = _controller.createCombinedDeck(group, decks);
+    _navigateToGameSelection(preselectedDeck: combinedDeck);
+  }
+
+  void _navigateToDeckEditor(String deckId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => DeckEditor(deckId: deckId)),
+    );
+  }
+
+  void _navigateToGameSelection({Deck? preselectedDeck}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GameSelectionScreen(preselectedDeck: preselectedDeck),
+      ),
+    );
+  }
+
+  Future<void> _showExportDialog(AppLocalizations l10n) async {
+    await showDialog(
+      context: context,
+      builder: (ctx) => ExportDialog(
+        ungroupedDecks: _controller.getUngroupedDecks(),
+        groups: _controller.state.groups,
+        getGroupDecks: _controller.getGroupDecks,
+        onExport: (selected) => _exportSelected(selected, l10n),
+        title: l10n.export_title,
+        selectAllText: l10n.export_selectAll,
+        cancelButtonText: l10n.dialog_cancel,
+        exportButtonText: l10n.export_button,
+      ),
+    );
+  }
+
+  Future<void> _exportSelected(
+    Set<Deck> selected,
+    AppLocalizations l10n,
+  ) async {
+    final json = _controller.exportCollection(selected);
+
+    if (kIsWeb) {
+      final fileName = 'zhenzhen_flashcard_collection.json';
+      final bytes = Uint8List.fromList(utf8.encode(json));
+      await exportFileWeb(bytes, fileName);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.export_success(selected.length))),
+        );
+      }
+      return;
+    }
+
+    final outputPath = await FilePicker.platform.saveFile(
+      dialogTitle: l10n.export_title,
+      fileName: 'zhenzhen_flashcard_collection.json',
+    );
+    if (outputPath != null) {
+      final file = File(outputPath);
+      await file.writeAsString(json);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.export_success(selected.length))),
+        );
+      }
+    }
+  }
+
+  Future<void> _importCollection(AppLocalizations l10n) async {
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: l10n.import_title,
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    String json;
+
+    if (kIsWeb) {
+      json = utf8.decode(file.bytes!);
+    } else {
+      json = await File(file.path!).readAsString();
+    }
+
+    try {
+      final data = jsonDecode(json) as Map<String, dynamic>;
+
+      final importedGroups =
+          (data['groups'] as List?)
+              ?.map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
+              .toList() ??
+          [];
+
+      final oldToNewGroupId = <String, String>{};
+      for (final group in importedGroups) {
+        final existing = getIt<DeckService>().getGroupByName(group.name);
+        if (existing != null) {
+          oldToNewGroupId[group.id] = existing.id;
+        } else {
+          oldToNewGroupId[group.id] = group.id;
+        }
+      }
+
+      final importedDecks = (data['decks'] as List)
+          .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+
+      final conflicts = <(Deck, String?)>[];
+      for (final deck in importedDecks) {
+        final newGroupId = deck.groupId != null
+            ? oldToNewGroupId[deck.groupId]
+            : null;
+        if (getIt<DeckService>().getDeckByName(
+              deck.name,
+              groupId: newGroupId,
+            ) !=
+            null) {
+          conflicts.add((deck, newGroupId));
+        }
+      }
+
+      if (conflicts.isEmpty) {
+        final importResult = await _controller.importCollection(
+          json,
+          onConflict: (_, __) => ConflictResolution.skip,
+        );
+        if (mounted && importResult != null) {
+          _showImportResult(importResult, l10n);
+        }
+      } else {
+        await _showConflictResolutionDialog(json, conflicts, l10n);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.import_failed(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _showConflictResolutionDialog(
+    String json,
+    List<(Deck, String?)> conflicts,
+    AppLocalizations l10n,
+  ) async {
+    final resolutions =
+        await showDialog<Map<(String, String?), ConflictResolution>>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => ConflictResolutionDialog(
+            conflicts: conflicts,
+            getGroupName: (groupId) => _controller.getGroup(groupId)?.name,
+            title: l10n.conflict_title,
+            messageGrouped: l10n.conflict_messageGrouped('{deck}', '{group}'),
+            messageUngrouped: l10n.conflict_messageUngrouped('{deck}'),
+            whatToDoText: l10n.conflict_whatToDo,
+            applyToAllText: l10n.conflict_applyToAll,
+            skipText: l10n.dialog_skip,
+            renameText: l10n.dialog_rename,
+            replaceText: l10n.dialog_replace,
+          ),
+        );
+
+    if (resolutions != null) {
+      final importResult = await _controller.importCollection(
+        json,
+        onConflict: (deckName, groupId) =>
+            resolutions[(deckName, groupId)] ?? ConflictResolution.skip,
+      );
+      if (mounted && importResult != null) {
+        _showImportResult(importResult, l10n);
+      }
+    }
+  }
+
+  void _showImportResult(ImportResult result, AppLocalizations l10n) {
+    final parts = <String>[];
+    if (result.decksImported > 0) {
+      parts.add(l10n.importResult_imported(result.decksImported));
+    }
+    if (result.decksReplaced > 0) {
+      parts.add(l10n.importResult_replaced(result.decksReplaced));
+    }
+    if (result.decksRenamed > 0) {
+      parts.add(l10n.importResult_renamed(result.decksRenamed));
+    }
+    if (result.decksSkipped > 0) {
+      parts.add(l10n.importResult_skipped(result.decksSkipped));
+    }
+    if (result.groupsMerged > 0) {
+      parts.add(l10n.importResult_groupsMerged(result.groupsMerged));
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          parts.isEmpty
+              ? l10n.importResult_noChanges
+              : l10n.importResult_complete(parts.join(', ')),
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _ask(
+    BuildContext context,
+    String prompt, {
+    String? initialValue,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    return showDialog<String>(
+      context: context,
+      builder: (_) => TextInputDialog(
+        title: prompt,
+        initialValue: initialValue,
+        cancelText: l10n.dialog_cancel,
+        okText: l10n.dialog_ok,
+      ),
+    );
+  }
+}
