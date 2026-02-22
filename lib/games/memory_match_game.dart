@@ -113,7 +113,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
   double _getFontSize(String text) {
     if (text.length <= 5) return 18;
     if (text.length <= 10) return 14;
-    return 11;
+    return 15;
   }
 
   @override
@@ -289,18 +289,15 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
           child: isFlipped
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      tile.text,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: _getFontSize(tile.text),
-                        fontWeight: FontWeight.bold,
-                        color: widget.theme.isModest
-                            ? widget.theme.primaryTextColor
-                            : Colors.white,
-                      ),
+                  child: Text(
+                    tile.text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: _getFontSize(tile.text),
+                      fontWeight: FontWeight.bold,
+                      color: widget.theme.isModest
+                          ? widget.theme.primaryTextColor
+                          : Colors.white,
                     ),
                   ),
                 )

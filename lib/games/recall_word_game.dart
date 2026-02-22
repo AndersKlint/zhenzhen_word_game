@@ -98,7 +98,7 @@ class _RecallWordGameState extends State<RecallWordGame>
     if (text.length <= 5) return 50;
     if (text.length <= 10) return 40;
     if (text.length <= 15) return 30;
-    return 24;
+    return 28;
   }
 
   Widget _buildCard(String text) {
@@ -130,16 +130,13 @@ class _RecallWordGameState extends State<RecallWordGame>
           ],
         ),
         child: Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              text,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: textColor,
             ),
           ),
         ),

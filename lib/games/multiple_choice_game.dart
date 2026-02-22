@@ -111,7 +111,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
   double _getFontSize(String text) {
     if (text.length <= 10) return 22;
     if (text.length <= 20) return 18;
-    return 14;
+    return 18;
   }
 
   LinearGradient _randomGradient() {
