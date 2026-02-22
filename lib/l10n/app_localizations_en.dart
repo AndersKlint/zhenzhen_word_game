@@ -396,4 +396,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lang_chinese => '中文';
+
+  @override
+  String get theme_playful => 'Playful Theme';
+
+  @override
+  String get theme_modest => 'Modest Theme';
 }

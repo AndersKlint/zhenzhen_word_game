@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models.dart';
+import '../../theme/app_theme.dart';
 import 'deck_card.dart';
 
 class UngroupedDropZone extends StatelessWidget {
@@ -10,6 +11,7 @@ class UngroupedDropZone extends StatelessWidget {
   final Function(Deck deck) onEditDeck;
   final Function(Deck deck) onDeleteDeck;
   final Function(Deck deck) onPlayDeck;
+  final AppTheme theme;
 
   const UngroupedDropZone({
     super.key,
@@ -20,6 +22,7 @@ class UngroupedDropZone extends StatelessWidget {
     required this.onEditDeck,
     required this.onDeleteDeck,
     required this.onPlayDeck,
+    required this.theme,
   });
 
   @override
@@ -40,7 +43,7 @@ class UngroupedDropZone extends StatelessWidget {
               ? const EdgeInsets.only(bottom: 8)
               : null,
           decoration: BoxDecoration(
-            color: isHovering ? Colors.orange.shade100 : Colors.transparent,
+            color: isHovering ? theme.dropZoneHoverColor : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
           ),
           child: isEmpty
@@ -48,8 +51,8 @@ class UngroupedDropZone extends StatelessWidget {
                     ? Center(
                         child: Text(
                           dropToUngroupText,
-                          style: const TextStyle(
-                            color: Colors.orange,
+                          style: TextStyle(
+                            color: theme.dropZoneTextColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -64,6 +67,7 @@ class UngroupedDropZone extends StatelessWidget {
                           onDelete: () => onDeleteDeck(deck),
                           onPlay: () => onPlayDeck(deck),
                           cardCountText: '${deck.words.length} cards',
+                          theme: theme,
                         ),
                       )
                       .toList(),

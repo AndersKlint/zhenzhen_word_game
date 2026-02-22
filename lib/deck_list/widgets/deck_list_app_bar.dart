@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class DeckListAppBar extends StatelessWidget {
   final VoidCallback onExport;
   final VoidCallback onImport;
+  final VoidCallback onToggleTheme;
   final String title;
   final String exportText;
   final String importText;
+  final String themeText;
   final String currentLanguageText;
   final VoidCallback onToggleLanguage;
+  final AppTheme theme;
 
   const DeckListAppBar({
     super.key,
     required this.onExport,
     required this.onImport,
+    required this.onToggleTheme,
     required this.title,
     required this.exportText,
     required this.importText,
+    required this.themeText,
     required this.currentLanguageText,
     required this.onToggleLanguage,
+    required this.theme,
   });
 
   @override
@@ -28,24 +35,39 @@ class DeckListAppBar extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: theme.groupHeaderColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: Colors.black87),
+              icon: Icon(Icons.more_vert, color: theme.primaryColor),
               onSelected: (value) {
                 if (value == 'export') {
                   onExport();
                 } else if (value == 'import') {
                   onImport();
+                } else if (value == 'theme') {
+                  onToggleTheme();
                 }
               },
               itemBuilder: (context) => [
                 PopupMenuItem(
+                  value: 'theme',
+                  child: Row(
+                    children: [
+                      Icon(
+                        theme.isPlayful ? Icons.brush : Icons.palette,
+                        color: theme.primaryColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(themeText),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
                   value: 'export',
                   child: Row(
                     children: [
-                      const Icon(Icons.upload_file),
+                      Icon(Icons.upload_file, color: theme.primaryColor),
                       const SizedBox(width: 8),
                       Text(exportText),
                     ],
@@ -55,7 +77,7 @@ class DeckListAppBar extends StatelessWidget {
                   value: 'import',
                   child: Row(
                     children: [
-                      const Icon(Icons.download),
+                      Icon(Icons.download, color: theme.primaryColor),
                       const SizedBox(width: 8),
                       Text(importText),
                     ],
@@ -67,17 +89,17 @@ class DeckListAppBar extends StatelessWidget {
           const Spacer(),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: theme.primaryColor,
             ),
           ),
           const Spacer(),
           TextButton(
             onPressed: onToggleLanguage,
             style: TextButton.styleFrom(
-              backgroundColor: Colors.white.withValues(alpha: 0.6),
+              backgroundColor: theme.groupHeaderColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -85,9 +107,9 @@ class DeckListAppBar extends StatelessWidget {
             ),
             child: Text(
               currentLanguageText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: theme.primaryColor,
               ),
             ),
           ),

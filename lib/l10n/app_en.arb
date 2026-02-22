@@ -607,5 +607,14 @@
   "lang_chinese": "中文",
   "@lang_chinese": {
     "description": "Short label for Chinese language"
+  },
+
+  "theme_playful": "Playful Theme",
+  "@theme_playful": {
+    "description": "Menu item to switch to playful theme"
+  },
+  "theme_modest": "Modest Theme",
+  "@theme_modest": {
+    "description": "Menu item to switch to modest theme"
   }
 }

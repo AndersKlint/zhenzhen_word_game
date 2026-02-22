@@ -386,4 +386,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lang_chinese => '中文';
+
+  @override
+  String get theme_playful => '活泼主题';
+
+  @override
+  String get theme_modest => '简约主题';
 }

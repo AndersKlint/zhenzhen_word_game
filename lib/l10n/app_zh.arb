@@ -137,5 +137,8 @@
   "quiz_selectAnswer": "选择正确答案：",
 
   "lang_english": "EN",
-  "lang_chinese": "中文"
+  "lang_chinese": "中文",
+
+  "theme_playful": "活泼主题",
+  "theme_modest": "简约主题"
 }

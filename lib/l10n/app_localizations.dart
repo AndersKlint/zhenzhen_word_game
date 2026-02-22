@@ -763,6 +763,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'中文'**
   String get lang_chinese;
+
+  /// Menu item to switch to playful theme
+  ///
+  /// In en, this message translates to:
+  /// **'Playful Theme'**
+  String get theme_playful;
+
+  /// Menu item to switch to modest theme
+  ///
+  /// In en, this message translates to:
+  /// **'Modest Theme'**
+  String get theme_modest;
 }
 
 class _AppLocalizationsDelegate

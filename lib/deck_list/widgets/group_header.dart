@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models.dart';
+import '../../theme/app_theme.dart';
 
 class GroupHeader extends StatelessWidget {
   final DeckGroup group;
@@ -13,6 +14,7 @@ class GroupHeader extends StatelessWidget {
   final String renameTooltip;
   final String deleteTooltip;
   final bool canPlay;
+  final AppTheme theme;
 
   const GroupHeader({
     super.key,
@@ -27,6 +29,7 @@ class GroupHeader extends StatelessWidget {
     required this.renameTooltip,
     required this.deleteTooltip,
     required this.canPlay,
+    required this.theme,
   });
 
   @override
@@ -36,11 +39,11 @@ class GroupHeader extends StatelessWidget {
       margin: const EdgeInsets.only(top: 16, bottom: 8),
       decoration: BoxDecoration(
         color: isHovering
-            ? Colors.purple.shade100
-            : Colors.white.withValues(alpha: 0.6),
+            ? theme.groupHeaderHoverColor
+            : theme.groupHeaderColor,
         borderRadius: BorderRadius.circular(16),
         border: isHovering
-            ? Border.all(color: Colors.purple.shade400, width: 2)
+            ? Border.all(color: theme.groupHeaderBorderColor, width: 2)
             : null,
       ),
       child: IntrinsicHeight(
@@ -67,31 +70,31 @@ class GroupHeader extends StatelessWidget {
           children: [
             Icon(
               isExpanded ? Icons.expand_more : Icons.chevron_right,
-              color: Colors.black87,
+              color: theme.primaryColor,
             ),
             const SizedBox(width: 8),
-            Icon(Icons.folder, color: Colors.purple.shade400),
+            Icon(Icons.folder, color: theme.folderIconColor),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 '${group.name} ($deckCount)',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: theme.primaryColor,
                 ),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.edit, size: 20, color: Colors.black54),
+              icon: Icon(Icons.edit, size: 20, color: theme.secondaryColor),
               onPressed: onRename,
               tooltip: renameTooltip,
             ),
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.delete_outline,
                 size: 20,
-                color: Colors.black54,
+                color: theme.secondaryColor,
               ),
               onPressed: onDelete,
               tooltip: deleteTooltip,
@@ -106,7 +109,7 @@ class GroupHeader extends StatelessWidget {
     return Container(
       width: 72,
       decoration: BoxDecoration(
-        color: Colors.purple.shade400,
+        color: theme.playButtonColor,
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -122,7 +125,9 @@ class GroupHeader extends StatelessWidget {
           child: Icon(
             Icons.play_arrow,
             size: 32,
-            color: canPlay ? Colors.white : Colors.white38,
+            color: canPlay
+                ? theme.buttonTextColor
+                : theme.buttonTextColor.withValues(alpha: 0.4),
           ),
         ),
       ),

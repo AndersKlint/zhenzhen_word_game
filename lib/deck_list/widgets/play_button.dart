@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class PlayButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String buttonText;
   final bool isEnabled;
+  final AppTheme theme;
 
   const PlayButton({
     super.key,
     required this.onPressed,
     required this.buttonText,
     required this.isEnabled,
+    required this.theme,
   });
 
   @override
@@ -24,16 +27,16 @@ class PlayButton extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              backgroundColor: Colors.cyan.shade300,
+              backgroundColor: theme.playButtonColor,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             ),
             onPressed: isEnabled ? onPressed : null,
             child: Text(
               buttonText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: theme.buttonTextColor,
               ),
             ),
           ),

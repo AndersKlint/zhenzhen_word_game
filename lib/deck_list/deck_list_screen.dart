@@ -7,6 +7,8 @@ import '../l10n/app_localizations.dart';
 import '../deck_service.dart';
 import '../di.dart';
 import '../locale_service.dart';
+import '../theme/theme_service.dart';
+import '../theme/app_theme.dart';
 import '../models.dart';
 import '../deck_editor/deck_editor_screen.dart';
 import '../game_selection/game_selection_screen.dart';
@@ -29,24 +31,32 @@ class DeckListScreen extends StatefulWidget {
 
 class _DeckListScreenState extends State<DeckListScreen> {
   late final DeckListController _controller;
+  late final ThemeService _themeService;
 
   @override
   void initState() {
     super.initState();
+    _themeService = getIt<ThemeService>();
     _controller = DeckListController(
       deckService: getIt<DeckService>(),
       localeService: getIt<LocaleService>(),
     );
     _controller.addListener(_onControllerChanged);
+    _themeService.addListener(_onThemeChanged);
   }
 
   void _onControllerChanged() {
     if (mounted) setState(() {});
   }
 
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
     _controller.removeListener(_onControllerChanged);
+    _themeService.removeListener(_onThemeChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -54,19 +64,14 @@ class _DeckListScreenState extends State<DeckListScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = _themeService.theme;
 
     return Scaffold(
-      floatingActionButton: _buildFab(l10n),
+      floatingActionButton: _buildFab(l10n, theme),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFE1C5E5), Color(0xFF80DEEA)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,20 +80,26 @@ class _DeckListScreenState extends State<DeckListScreen> {
               DeckListAppBar(
                 onExport: () => _showExportDialog(l10n),
                 onImport: () => _importCollection(l10n),
+                onToggleTheme: () => _themeService.toggleTheme(),
                 title: l10n.deckList_title,
                 exportText: l10n.export_button,
                 importText: l10n.import_title,
+                themeText: theme.isPlayful
+                    ? l10n.theme_modest
+                    : l10n.theme_playful,
                 currentLanguageText: _controller.isEnglish
                     ? l10n.lang_chinese
                     : l10n.lang_english,
                 onToggleLanguage: () => _controller.toggleLocale(),
+                theme: theme,
               ),
               const SizedBox(height: 16),
-              Expanded(child: _buildDeckList(l10n)),
+              Expanded(child: _buildDeckList(l10n, theme)),
               PlayButton(
                 onPressed: () => _navigateToGameSelection(),
                 buttonText: l10n.deckList_goToGames,
                 isEnabled: _controller.state.decks.isNotEmpty,
+                theme: theme,
               ),
             ],
           ),
@@ -97,7 +108,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
     );
   }
 
-  Widget _buildFab(AppLocalizations l10n) {
+  Widget _buildFab(AppLocalizations l10n, AppTheme theme) {
     return PopupMenuButton<String>(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       offset: const Offset(0, -8),
@@ -113,7 +124,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
           value: 'deck',
           child: Row(
             children: [
-              Icon(Icons.add, color: Colors.pink.shade300),
+              Icon(Icons.add, color: theme.accentColor),
               const SizedBox(width: 12),
               Text(l10n.deckList_addDeck),
             ],
@@ -123,7 +134,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
           value: 'group',
           child: Row(
             children: [
-              Icon(Icons.folder_outlined, color: Colors.purple.shade300),
+              Icon(Icons.folder_outlined, color: theme.folderIconColor),
               const SizedBox(width: 12),
               Text(l10n.deckList_addGroup),
             ],
@@ -132,14 +143,14 @@ class _DeckListScreenState extends State<DeckListScreen> {
       ],
       child: FloatingActionButton(
         onPressed: null,
-        backgroundColor: Colors.pink.shade300,
+        backgroundColor: theme.floatingActionButtonColor,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        child: Icon(Icons.add, color: theme.buttonTextColor, size: 28),
       ),
     );
   }
 
-  Widget _buildDeckList(AppLocalizations l10n) {
+  Widget _buildDeckList(AppLocalizations l10n, AppTheme theme) {
     final state = _controller.state;
     final ungroupedDecks = _controller.getUngroupedDecks();
     final groups = state.groups;
@@ -164,13 +175,18 @@ class _DeckListScreenState extends State<DeckListScreen> {
           onEditDeck: (deck) => _navigateToDeckEditor(deck.id),
           onDeleteDeck: (deck) => _deleteDeck(deck, l10n),
           onPlayDeck: (deck) => _navigateToGameSelection(preselectedDeck: deck),
+          theme: theme,
         ),
-        for (final group in groups) ...[_buildGroupSection(group, l10n)],
+        for (final group in groups) ...[_buildGroupSection(group, l10n, theme)],
       ],
     );
   }
 
-  Widget _buildGroupSection(DeckGroup group, AppLocalizations l10n) {
+  Widget _buildGroupSection(
+    DeckGroup group,
+    AppLocalizations l10n,
+    AppTheme theme,
+  ) {
     final decks = _controller.getGroupDecks(group.id);
     final isExpanded = _controller.state.isGroupExpanded(group.id);
 
@@ -197,6 +213,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
               renameTooltip: l10n.tooltip_rename,
               deleteTooltip: l10n.tooltip_delete,
               canPlay: decks.isNotEmpty,
+              theme: theme,
             );
           },
         ),
@@ -210,6 +227,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
                 onDelete: () => _deleteDeck(deck, l10n),
                 onPlay: () => _navigateToGameSelection(preselectedDeck: deck),
                 cardCountText: l10n.deckList_cards(deck.words.length),
+                theme: theme,
               ),
             ),
           ),
