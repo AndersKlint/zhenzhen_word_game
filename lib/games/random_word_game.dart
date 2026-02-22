@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 import 'package:zhenzhen_word_game/appbar.dart';
-import 'game_service.dart';
-import 'di.dart';
-import 'models.dart';
+import '../game_service.dart';
+import '../di.dart';
+import '../models.dart';
 import 'dart:math';
 
 class RandomWordGame extends StatefulWidget {

@@ -1,107 +1,92 @@
 import 'package:flutter/material.dart';
-import 'l10n/app_localizations.dart';
-import 'models.dart';
+import '../l10n/app_localizations.dart';
+import '../game_service.dart';
+import '../di.dart';
+import '../models.dart';
 import 'dart:math';
 
-class ReverseRecallGame extends StatefulWidget {
+class RecallWordGame extends StatefulWidget {
   final Deck deck;
-  const ReverseRecallGame({super.key, required this.deck});
+  const RecallWordGame({super.key, required this.deck});
 
   @override
-  State<ReverseRecallGame> createState() => _ReverseRecallGameState();
+  State<RecallWordGame> createState() => _RecallWordGameState();
 }
 
-class _ReverseRecallGameState extends State<ReverseRecallGame>
-    with SingleTickerProviderStateMixin {
-  late List<int> _currentIndices;
-  late List<int> _delayed;
-  int? _currentIndex;
-  bool _showFront = false;
+class _RecallWordGameState extends State<RecallWordGame>
+    with TickerProviderStateMixin {
+  final game = getIt<GameService>();
+  late List<String> _currentDeck;
+  late List<String> _delayed;
+  String currentWord = '';
   bool finished = false;
-  late AnimationController _flipController;
+  late AnimationController _animController;
   final Random _rnd = Random();
   int _totalCards = 0;
-  LinearGradient? _currentGradient;
 
   @override
   void initState() {
     super.initState();
-    final cardsWithBacks = List.generate(
-      widget.deck.words.length,
-      (i) => i,
-    ).where((i) => widget.deck.hasBack(i)).toList();
-    _currentIndices = cardsWithBacks;
+    _currentDeck = List.from(widget.deck.words);
     _delayed = [];
-    _totalCards = _currentIndices.length;
+    _totalCards = _currentDeck.length;
 
-    _flipController = AnimationController(
+    _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 500),
     );
-
-    _nextCard();
+    _nextWord();
   }
 
-  void _nextCard() {
-    if (_currentIndices.isEmpty && _delayed.isEmpty) {
+  void _nextWord() {
+    if (_currentDeck.isEmpty && _delayed.isEmpty) {
       setState(() {
         finished = true;
-        _currentIndex = null;
-        _currentGradient = null;
+        currentWord = '';
       });
       return;
     }
 
-    int next;
-    if (_currentIndices.isNotEmpty) {
-      next = _currentIndices.removeAt(_rnd.nextInt(_currentIndices.length));
-    } else {
+    String next = '';
+    if (_currentDeck.isNotEmpty) {
+      next = _currentDeck.removeAt(_rnd.nextInt(_currentDeck.length));
+    } else if (_delayed.isNotEmpty) {
       next = _delayed.removeAt(0);
     }
 
-    final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
-    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
-    final gradient = LinearGradient(
-      colors: [c1, c2],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-
     setState(() {
-      _currentIndex = next;
-      _showFront = false;
-      _currentGradient = gradient;
-      _flipController.reset();
+      currentWord = next;
+      _animController.forward(from: 0);
     });
   }
 
-  void _flipCard() {
-    if (_currentIndex == null) return;
-    if (!_showFront) {
-      setState(() => _showFront = true);
-      _flipController.forward();
-    }
-  }
-
   void _markGood() {
-    _nextCard();
+    _nextWord();
   }
 
   void _markAgain() {
-    if (_currentIndex != null) {
-      if (_currentIndices.length + _delayed.length > 0) {
-        _delayed.add(_currentIndex!);
-      } else {
-        _currentIndices.add(_currentIndex!);
-      }
+    if (_currentDeck.length + _delayed.length > 0) {
+      _delayed.add(currentWord);
+    } else {
+      _currentDeck.add(currentWord);
     }
-    _nextCard();
+    _nextWord();
   }
 
   @override
   void dispose() {
-    _flipController.dispose();
+    _animController.dispose();
     super.dispose();
+  }
+
+  LinearGradient _randomGradient() {
+    final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
+    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
+    return LinearGradient(
+      colors: [c1, c2],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
   }
 
   double _getFontSize(String text) {
@@ -111,80 +96,45 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
     return 24;
   }
 
-  Widget _buildCard(String text, LinearGradient gradient) {
+  Widget _buildCard(String text) {
     final fontSize = _getFontSize(text);
 
-    return Container(
-      constraints: const BoxConstraints(
-        minWidth: 120,
-        minHeight: 80,
-        maxWidth: 300,
-        maxHeight: 200,
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Center(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    return ScaleTransition(
+      scale: CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
+      child: Container(
+        constraints: const BoxConstraints(
+          minWidth: 120,
+          minHeight: 80,
+          maxWidth: 300,
+          maxHeight: 200,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: _randomGradient(),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildFlipCard() {
-    if (_currentIndex == null || _currentGradient == null) {
-      return const SizedBox();
-    }
-
-    final frontText = widget.deck.words[_currentIndex!];
-    final backText = widget.deck.getBack(_currentIndex!) ?? '';
-
-    return GestureDetector(
-      onTap: _flipCard,
-      child: AnimatedBuilder(
-        animation: _flipController,
-        builder: (context, child) {
-          final angle = _flipController.value * pi;
-
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              Transform(
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.001)
-                  ..rotateY(angle),
-                alignment: Alignment.center,
-                child: angle < pi / 2
-                    ? _buildCard(backText, _currentGradient!)
-                    : Transform(
-                        transform: Matrix4.identity()..rotateY(pi),
-                        alignment: Alignment.center,
-                        child: _buildCard(frontText, _currentGradient!),
-                      ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }
@@ -193,7 +143,7 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final remainingCards =
-        _currentIndices.length + _delayed.length + (finished ? 0 : 1);
+        _currentDeck.length + _delayed.length + (finished ? 0 : 1);
 
     return Scaffold(
       appBar: AppBar(
@@ -243,18 +193,10 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
                             color: Colors.black87,
                           ),
                         )
-                      : _buildFlipCard(),
+                      : _buildCard(currentWord),
                 ),
               ),
-              if (!finished && _currentIndex != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    _showFront ? '' : l10n.common_tapToReveal,
-                    style: const TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                ),
-              if (!finished && _currentIndex != null && _showFront)
+              if (!finished)
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24.0,

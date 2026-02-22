@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'l10n/app_localizations.dart';
-import 'models.dart';
+import '../l10n/app_localizations.dart';
+import '../models.dart';
 import 'dart:math';
 
 class FlipCardGame extends StatefulWidget {
