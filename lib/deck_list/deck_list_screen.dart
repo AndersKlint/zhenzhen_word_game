@@ -9,7 +9,7 @@ import '../di.dart';
 import '../locale_service.dart';
 import '../models.dart';
 import '../screens_deck_editor.dart';
-import '../screens_game_selection.dart';
+import '../game_selection/game_selection_screen.dart';
 import '../platform/file_export.dart';
 import 'deck_list_controller.dart';
 import 'widgets/deck_card.dart';
