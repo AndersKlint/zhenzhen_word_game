@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../theme/app_theme.dart';
 import 'dart:math';
 
 class MemoryMatchGame extends StatefulWidget {
   final Deck deck;
-  const MemoryMatchGame({super.key, required this.deck});
+  final AppTheme theme;
+  const MemoryMatchGame({super.key, required this.deck, required this.theme});
 
   @override
   State<MemoryMatchGame> createState() => _MemoryMatchGameState();
@@ -121,10 +123,10 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black87),
+        leading: BackButton(color: widget.theme.primaryTextColor),
         title: Text(
           widget.deck.name,
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: widget.theme.primaryTextColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -133,13 +135,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -167,21 +163,24 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: widget.theme.groupHeaderColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 14,
+              color: widget.theme.secondaryTextColor,
+            ),
           ),
           Text(
             value.toString(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: widget.theme.primaryTextColor,
             ),
           ),
         ],
@@ -198,16 +197,19 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
         children: [
           Text(
             l10n.memory_youWin,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: widget.theme.primaryTextColor,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             l10n.memory_completedMoves(_moves),
-            style: const TextStyle(fontSize: 24, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 24,
+              color: widget.theme.primaryTextColor,
+            ),
           ),
           const SizedBox(height: 40),
           Padding(
@@ -218,14 +220,17 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink.shade300,
+                  backgroundColor: widget.theme.accentColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
                 child: Text(
                   l10n.common_finish,
-                  style: const TextStyle(fontSize: 28, color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: widget.theme.buttonTextColor,
+                  ),
                 ),
               ),
             ),
@@ -257,18 +262,20 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
     final tile = _tiles[index];
     final isFlipped = tile.isFlipped || tile.isMatched;
 
+    final backGradient = widget.theme.isModest
+        ? widget.theme.cardGradient
+        : LinearGradient(
+            colors: [Colors.blue.shade300, Colors.purple.shade300],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+
     return GestureDetector(
       onTap: () => _flipTile(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          gradient: isFlipped
-              ? _getTileGradient(tile)
-              : LinearGradient(
-                  colors: [Colors.blue.shade300, Colors.purple.shade300],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+          gradient: isFlipped ? _getTileGradient(tile) : backGradient,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -290,7 +297,9 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
                       style: TextStyle(
                         fontSize: _getFontSize(tile.text),
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: widget.theme.isModest
+                            ? widget.theme.primaryTextColor
+                            : Colors.white,
                       ),
                     ),
                   ),
@@ -312,6 +321,9 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
+    }
+    if (widget.theme.isModest) {
+      return widget.theme.cardGradient;
     }
     final baseIndex = tile.cardIndex % Colors.primaries.length;
     final color = Colors.primaries[baseIndex];

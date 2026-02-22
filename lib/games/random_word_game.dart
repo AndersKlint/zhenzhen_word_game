@@ -4,12 +4,19 @@ import 'package:zhenzhen_word_game/appbar.dart';
 import '../game_service.dart';
 import '../di.dart';
 import '../models.dart';
+import '../theme/app_theme.dart';
 import 'dart:math';
 
 class RandomWordGame extends StatefulWidget {
   final List<Deck> decks;
   final bool repeat;
-  const RandomWordGame({super.key, required this.decks, required this.repeat});
+  final AppTheme theme;
+  const RandomWordGame({
+    super.key,
+    required this.decks,
+    required this.repeat,
+    required this.theme,
+  });
 
   @override
   State<RandomWordGame> createState() => _RandomWordGameState();
@@ -49,6 +56,9 @@ class _RandomWordGameState extends State<RandomWordGame>
   }
 
   LinearGradient _randomGradient() {
+    if (widget.theme.isModest) {
+      return widget.theme.cardGradient;
+    }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
     final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
     return LinearGradient(
@@ -67,6 +77,9 @@ class _RandomWordGameState extends State<RandomWordGame>
 
   Widget _buildCard(String text) {
     final fontSize = _getFontSize(text);
+    final textColor = widget.theme.isModest
+        ? widget.theme.primaryTextColor
+        : Colors.white;
 
     return ScaleTransition(
       scale: CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
@@ -99,7 +112,7 @@ class _RandomWordGameState extends State<RandomWordGame>
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textColor,
               ),
             ),
           ),
@@ -113,18 +126,16 @@ class _RandomWordGameState extends State<RandomWordGame>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: buildAppBar(context, l10n.game_multiDeck(widget.decks.length)),
+      appBar: buildAppBar(
+        context,
+        l10n.game_multiDeck(widget.decks.length),
+        theme: widget.theme,
+      ),
       extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -134,10 +145,10 @@ class _RandomWordGameState extends State<RandomWordGame>
                   child: finished
                       ? Text(
                           l10n.common_allDone,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 50,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: widget.theme.primaryTextColor,
                           ),
                         )
                       : SingleChildScrollView(
@@ -163,7 +174,7 @@ class _RandomWordGameState extends State<RandomWordGame>
                   height: 70,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan.shade300,
+                      backgroundColor: widget.theme.buttonColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -171,9 +182,9 @@ class _RandomWordGameState extends State<RandomWordGame>
                     onPressed: finished ? () => Navigator.pop(context) : _next,
                     child: Text(
                       finished ? l10n.common_finish : l10n.common_next,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
-                        color: Colors.black87,
+                        color: widget.theme.buttonTextColor,
                       ),
                     ),
                   ),

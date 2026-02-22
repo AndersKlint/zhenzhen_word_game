@@ -70,7 +70,7 @@ class GroupHeader extends StatelessWidget {
           children: [
             Icon(
               isExpanded ? Icons.expand_more : Icons.chevron_right,
-              color: theme.primaryColor,
+              color: theme.primaryTextColor,
             ),
             const SizedBox(width: 8),
             Icon(Icons.folder, color: theme.folderIconColor),
@@ -81,12 +81,12 @@ class GroupHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: theme.primaryColor,
+                  color: theme.primaryTextColor,
                 ),
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit, size: 20, color: theme.secondaryColor),
+              icon: Icon(Icons.edit, size: 20, color: theme.secondaryTextColor),
               onPressed: onRename,
               tooltip: renameTooltip,
             ),
@@ -94,7 +94,7 @@ class GroupHeader extends StatelessWidget {
               icon: Icon(
                 Icons.delete_outline,
                 size: 20,
-                color: theme.secondaryColor,
+                color: theme.secondaryTextColor,
               ),
               onPressed: onDelete,
               tooltip: deleteTooltip,

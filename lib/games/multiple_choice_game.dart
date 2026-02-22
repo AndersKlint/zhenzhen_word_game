@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../theme/app_theme.dart';
 import 'dart:math';
 
 class MultipleChoiceGame extends StatefulWidget {
   final Deck deck;
-  const MultipleChoiceGame({super.key, required this.deck});
+  final AppTheme theme;
+  const MultipleChoiceGame({
+    super.key,
+    required this.deck,
+    required this.theme,
+  });
 
   @override
   State<MultipleChoiceGame> createState() => _MultipleChoiceGameState();
@@ -109,6 +115,9 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
   }
 
   LinearGradient _randomGradient() {
+    if (widget.theme.isModest) {
+      return widget.theme.cardGradient;
+    }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
     final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
     return LinearGradient(
@@ -125,10 +134,10 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black87),
+        leading: BackButton(color: widget.theme.primaryTextColor),
         title: Text(
           widget.deck.name,
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: widget.theme.primaryTextColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -137,13 +146,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
           child: finished
               ? _buildFinishedScreen()
@@ -166,16 +169,19 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
         children: [
           Text(
             l10n.quiz_complete,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: widget.theme.primaryTextColor,
             ),
           ),
           const SizedBox(height: 24),
           Text(
             l10n.quiz_correct(_score, totalQuestions),
-            style: const TextStyle(fontSize: 28, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 28,
+              color: widget.theme.primaryTextColor,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -197,14 +203,17 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink.shade300,
+                  backgroundColor: widget.theme.accentColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
                 child: Text(
                   l10n.common_finish,
-                  style: const TextStyle(fontSize: 28, color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: widget.theme.buttonTextColor,
+                  ),
                 ),
               ),
             ),
@@ -224,7 +233,11 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
           padding: const EdgeInsets.all(16.0),
           child: Text(
             l10n.quiz_question(_currentIndex + 1, totalQuestions),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: widget.theme.primaryTextColor,
+            ),
           ),
         ),
         Expanded(
@@ -251,10 +264,12 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                 child: Text(
                   frontText,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: widget.theme.isModest
+                        ? widget.theme.primaryTextColor
+                        : Colors.white,
                   ),
                 ),
               ),
@@ -267,7 +282,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
             l10n.quiz_selectAnswer,
             style: TextStyle(
               fontSize: 18,
-              color: Colors.black87.withOpacity(0.7),
+              color: widget.theme.secondaryTextColor,
             ),
           ),
         ),
@@ -326,7 +341,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                           fontWeight: FontWeight.w600,
                           color: showResult && (isCorrect || isSelected)
                               ? Colors.white
-                              : Colors.black87,
+                              : widget.theme.primaryTextColor,
                         ),
                       ),
                     ),
@@ -345,7 +360,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
               child: ElevatedButton(
                 onPressed: _nextQuestion,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.cyan.shade400,
+                  backgroundColor: widget.theme.buttonColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -354,7 +369,10 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                   _currentIndex + 1 >= totalQuestions
                       ? l10n.quiz_seeResults
                       : l10n.common_next,
-                  style: const TextStyle(fontSize: 24, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: widget.theme.buttonTextColor,
+                  ),
                 ),
               ),
             ),

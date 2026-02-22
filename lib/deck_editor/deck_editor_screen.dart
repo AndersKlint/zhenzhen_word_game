@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../appbar.dart';
+import '../di.dart';
+import '../theme/theme_service.dart';
+import '../theme/app_theme.dart';
 import 'deck_editor_controller.dart';
 import 'widgets/card_list_item.dart';
 import 'widgets/card_input_form.dart';
@@ -18,6 +21,7 @@ class DeckEditorScreen extends StatefulWidget {
 
 class _DeckEditorScreenState extends State<DeckEditorScreen> {
   late final DeckEditorController _controller;
+  late final ThemeService _themeService;
   final _frontController = TextEditingController();
   final _backController = TextEditingController();
   final _frontFocusNode = FocusNode();
@@ -26,6 +30,7 @@ class _DeckEditorScreenState extends State<DeckEditorScreen> {
   @override
   void initState() {
     super.initState();
+    _themeService = getIt<ThemeService>();
     _controller = DeckEditorController(deckId: widget.deckId);
     _controller.addListener(_onControllerChanged);
   }
@@ -49,20 +54,15 @@ class _DeckEditorScreenState extends State<DeckEditorScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final deck = _controller.deck;
+    final theme = _themeService.theme;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildAppBar(context, l10n.editor_title(deck.name)),
+      appBar: buildAppBar(context, l10n.editor_title(deck.name), theme: theme),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -76,13 +76,13 @@ class _DeckEditorScreenState extends State<DeckEditorScreen> {
                     ? Center(
                         child: Text(
                           l10n.editor_addFirstCard,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
-                            color: Colors.black54,
+                            color: theme.secondaryTextColor,
                           ),
                         ),
                       )
-                    : _buildCardList(),
+                    : _buildCardList(theme),
               ),
               const Divider(height: 1, thickness: 1, color: Colors.black26),
               CardInputForm(
@@ -102,7 +102,7 @@ class _DeckEditorScreenState extends State<DeckEditorScreen> {
     );
   }
 
-  Widget _buildCardList() {
+  Widget _buildCardList(AppTheme theme) {
     final deck = _controller.deck;
 
     return ListView.builder(
@@ -115,6 +115,7 @@ class _DeckEditorScreenState extends State<DeckEditorScreen> {
           back: deck.getBack(i),
           onEdit: () => _editWord(i),
           onDelete: () => _removeWord(i),
+          theme: theme,
         );
       },
     );

@@ -156,7 +156,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
     final groups = state.groups;
 
     if (state.isEmpty) {
-      return EmptyState(message: l10n.deckList_noDecks);
+      return EmptyState(message: l10n.deckList_noDecks, theme: theme);
     }
 
     return ListView(
@@ -306,7 +306,10 @@ class _DeckListScreenState extends State<DeckListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => GameSelectionScreen(preselectedDeck: preselectedDeck),
+        builder: (_) => GameSelectionScreen(
+          preselectedDeck: preselectedDeck,
+          theme: _themeService.theme,
+        ),
       ),
     );
   }

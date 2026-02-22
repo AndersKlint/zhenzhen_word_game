@@ -8,14 +8,20 @@ import '../games/multiple_choice_game.dart';
 import '../games/memory_match_game.dart';
 import '../games/random_word_game.dart';
 import '../games/recall_word_game.dart';
+import '../theme/app_theme.dart';
 import 'game_selection_controller.dart';
 import 'widgets/game_card.dart';
 import 'widgets/dialogs.dart';
 
 class GameSelectionScreen extends StatelessWidget {
   final Deck? preselectedDeck;
+  final AppTheme theme;
 
-  const GameSelectionScreen({super.key, this.preselectedDeck});
+  const GameSelectionScreen({
+    super.key,
+    this.preselectedDeck,
+    required this.theme,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +30,11 @@ class GameSelectionScreen extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildAppBar(context, l10n.gameSelection_title),
+      appBar: buildAppBar(context, l10n.gameSelection_title, theme: theme),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,10 +45,10 @@ class GameSelectionScreen extends StatelessWidget {
                   preselectedDeck != null
                       ? l10n.gameSelection_playing(preselectedDeck!.name)
                       : l10n.gameSelection_selectMode,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: theme.primaryTextColor,
                   ),
                 ),
               ),
@@ -92,6 +92,7 @@ class GameSelectionScreen extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       onTap: () => _handleRecallFront(context, l10n, controller),
+      theme: theme,
     );
   }
 
@@ -105,7 +106,9 @@ class GameSelectionScreen extends StatelessWidget {
     if (deck != null && context.mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => RecallWordGame(deck: deck)),
+        MaterialPageRoute(
+          builder: (_) => RecallWordGame(deck: deck, theme: theme),
+        ),
       );
     }
   }
@@ -124,6 +127,7 @@ class GameSelectionScreen extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       onTap: () => _handleRecallBoth(context, l10n, controller),
+      theme: theme,
     );
   }
 
@@ -137,7 +141,9 @@ class GameSelectionScreen extends StatelessWidget {
     if (deck != null && context.mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => FlipCardGame(deck: deck)),
+        MaterialPageRoute(
+          builder: (_) => FlipCardGame(deck: deck, theme: theme),
+        ),
       );
     }
   }
@@ -156,6 +162,7 @@ class GameSelectionScreen extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       onTap: () => _handleRandomMulti(context, l10n, controller),
+      theme: theme,
     );
   }
 
@@ -181,7 +188,8 @@ class GameSelectionScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => RandomWordGame(decks: decks, repeat: repeat),
+        builder: (_) =>
+            RandomWordGame(decks: decks, repeat: repeat, theme: theme),
       ),
     );
   }
@@ -200,6 +208,7 @@ class GameSelectionScreen extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       onTap: () => _handleReverseRecall(context, l10n, controller),
+      theme: theme,
     );
   }
 
@@ -224,7 +233,9 @@ class GameSelectionScreen extends StatelessWidget {
     if (context.mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ReverseRecallGame(deck: deck)),
+        MaterialPageRoute(
+          builder: (_) => ReverseRecallGame(deck: deck, theme: theme),
+        ),
       );
     }
   }
@@ -243,6 +254,7 @@ class GameSelectionScreen extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       onTap: () => _handleMultipleChoice(context, l10n, controller),
+      theme: theme,
     );
   }
 
@@ -267,7 +279,9 @@ class GameSelectionScreen extends StatelessWidget {
     if (context.mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => MultipleChoiceGame(deck: deck)),
+        MaterialPageRoute(
+          builder: (_) => MultipleChoiceGame(deck: deck, theme: theme),
+        ),
       );
     }
   }
@@ -286,6 +300,7 @@ class GameSelectionScreen extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       onTap: () => _handleMemoryMatch(context, l10n, controller),
+      theme: theme,
     );
   }
 
@@ -310,7 +325,9 @@ class GameSelectionScreen extends StatelessWidget {
     if (context.mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => MemoryMatchGame(deck: deck)),
+        MaterialPageRoute(
+          builder: (_) => MemoryMatchGame(deck: deck, theme: theme),
+        ),
       );
     }
   }

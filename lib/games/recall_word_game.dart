@@ -3,11 +3,13 @@ import '../l10n/app_localizations.dart';
 import '../game_service.dart';
 import '../di.dart';
 import '../models.dart';
+import '../theme/app_theme.dart';
 import 'dart:math';
 
 class RecallWordGame extends StatefulWidget {
   final Deck deck;
-  const RecallWordGame({super.key, required this.deck});
+  final AppTheme theme;
+  const RecallWordGame({super.key, required this.deck, required this.theme});
 
   @override
   State<RecallWordGame> createState() => _RecallWordGameState();
@@ -80,6 +82,9 @@ class _RecallWordGameState extends State<RecallWordGame>
   }
 
   LinearGradient _randomGradient() {
+    if (widget.theme.isModest) {
+      return widget.theme.cardGradient;
+    }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
     final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
     return LinearGradient(
@@ -98,6 +103,9 @@ class _RecallWordGameState extends State<RecallWordGame>
 
   Widget _buildCard(String text) {
     final fontSize = _getFontSize(text);
+    final textColor = widget.theme.isModest
+        ? widget.theme.primaryTextColor
+        : Colors.white;
 
     return ScaleTransition(
       scale: CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
@@ -130,7 +138,7 @@ class _RecallWordGameState extends State<RecallWordGame>
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textColor,
               ),
             ),
           ),
@@ -147,10 +155,10 @@ class _RecallWordGameState extends State<RecallWordGame>
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black87),
+        leading: BackButton(color: widget.theme.primaryTextColor),
         title: Text(
           widget.deck.name,
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: widget.theme.primaryTextColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -159,13 +167,7 @@ class _RecallWordGameState extends State<RecallWordGame>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -175,9 +177,10 @@ class _RecallWordGameState extends State<RecallWordGame>
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: Text(
                     l10n.game_cardsLeft(remainingCards, _totalCards),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: widget.theme.primaryTextColor,
                     ),
                   ),
                 ),
@@ -187,10 +190,10 @@ class _RecallWordGameState extends State<RecallWordGame>
                       ? Text(
                           l10n.common_congratulations,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: widget.theme.primaryTextColor,
                           ),
                         )
                       : _buildCard(currentWord),
@@ -256,16 +259,16 @@ class _RecallWordGameState extends State<RecallWordGame>
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink.shade300,
+                        backgroundColor: widget.theme.accentColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: Text(
                         l10n.common_finish,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
-                          color: Colors.black87,
+                          color: widget.theme.buttonTextColor,
                         ),
                       ),
                     ),

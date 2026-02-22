@@ -22,6 +22,8 @@ class AppTheme {
   final Color appBarGradientEnd;
   final Color folderIconColor;
   final Color playButtonColor;
+  final Color primaryTextColor;
+  final Color secondaryTextColor;
 
   const AppTheme({
     required this.name,
@@ -43,6 +45,8 @@ class AppTheme {
     required this.appBarGradientEnd,
     required this.folderIconColor,
     required this.playButtonColor,
+    required this.primaryTextColor,
+    required this.secondaryTextColor,
   });
 
   bool get isPlayful => name == 'playful';
@@ -76,6 +80,8 @@ class AppTheme {
     appBarGradientEnd: Color(0xFF4DD0E1),
     folderIconColor: Color(0xFFAB47BC),
     playButtonColor: Color(0xFF4DD0E1),
+    primaryTextColor: Color(0xDD000000),
+    secondaryTextColor: Color(0x8A000000),
   );
 
   static const AppTheme modest = AppTheme(
@@ -106,6 +112,8 @@ class AppTheme {
     appBarGradientEnd: Color(0xFFF5F5F5),
     folderIconColor: Color(0xFF505050),
     playButtonColor: Color(0xFF007AFF),
+    primaryTextColor: Color(0xFF2C2C2C),
+    secondaryTextColor: Color(0xFF505050),
   );
 
   LinearGradient gradientFromColors(List<Color> colors) {

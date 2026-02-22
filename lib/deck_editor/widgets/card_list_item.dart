@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class CardListItem extends StatelessWidget {
   final int index;
@@ -6,6 +7,7 @@ class CardListItem extends StatelessWidget {
   final String? back;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final AppTheme theme;
 
   const CardListItem({
     super.key,
@@ -14,21 +16,17 @@ class CardListItem extends StatelessWidget {
     this.back,
     required this.onEdit,
     required this.onDelete,
+    required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
-    final primary1 = Colors.primaries[index % Colors.primaries.length];
-    final primary2 = Colors.primaries[(index + 3) % Colors.primaries.length];
+    final gradient = theme.cardGradientAtIndex(index);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primary1.shade100, primary2.shade200],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: gradient,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -53,19 +51,19 @@ class CardListItem extends StatelessWidget {
                     children: [
                       Text(
                         front,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: theme.primaryTextColor,
                         ),
                       ),
                       if (back != null && back!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           back!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            color: Colors.black54,
+                            color: theme.secondaryTextColor,
                           ),
                         ),
                       ],
@@ -73,7 +71,7 @@ class CardListItem extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: Colors.black87),
+                  icon: Icon(Icons.close, color: theme.secondaryTextColor),
                   onPressed: onDelete,
                 ),
               ],

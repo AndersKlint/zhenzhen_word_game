@@ -43,7 +43,7 @@ class DeckCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: theme.primaryColor,
+            color: theme.primaryTextColor,
           ),
         ),
       ),
@@ -103,7 +103,7 @@ class DeckCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: theme.primaryColor,
+                          color: theme.primaryTextColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -111,7 +111,7 @@ class DeckCard extends StatelessWidget {
                         cardCountText,
                         style: TextStyle(
                           fontSize: 16,
-                          color: theme.secondaryColor,
+                          color: theme.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -120,11 +120,11 @@ class DeckCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit, color: theme.secondaryColor),
+              icon: Icon(Icons.edit, color: theme.secondaryTextColor),
               onPressed: onEdit,
             ),
             IconButton(
-              icon: Icon(Icons.close, color: theme.secondaryColor),
+              icon: Icon(Icons.close, color: theme.secondaryTextColor),
               onPressed: onDelete,
             ),
             _buildPlayButton(),

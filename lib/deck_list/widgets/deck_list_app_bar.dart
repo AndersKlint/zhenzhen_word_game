@@ -39,7 +39,7 @@ class DeckListAppBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: theme.primaryColor),
+              icon: Icon(Icons.more_vert, color: theme.primaryTextColor),
               onSelected: (value) {
                 if (value == 'export') {
                   onExport();
@@ -56,7 +56,7 @@ class DeckListAppBar extends StatelessWidget {
                     children: [
                       Icon(
                         theme.isPlayful ? Icons.brush : Icons.palette,
-                        color: theme.primaryColor,
+                        color: theme.primaryTextColor,
                       ),
                       const SizedBox(width: 8),
                       Text(themeText),
@@ -67,7 +67,7 @@ class DeckListAppBar extends StatelessWidget {
                   value: 'export',
                   child: Row(
                     children: [
-                      Icon(Icons.upload_file, color: theme.primaryColor),
+                      Icon(Icons.upload_file, color: theme.primaryTextColor),
                       const SizedBox(width: 8),
                       Text(exportText),
                     ],
@@ -77,7 +77,7 @@ class DeckListAppBar extends StatelessWidget {
                   value: 'import',
                   child: Row(
                     children: [
-                      Icon(Icons.download, color: theme.primaryColor),
+                      Icon(Icons.download, color: theme.primaryTextColor),
                       const SizedBox(width: 8),
                       Text(importText),
                     ],
@@ -92,7 +92,7 @@ class DeckListAppBar extends StatelessWidget {
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: theme.primaryColor,
+              color: theme.primaryTextColor,
             ),
           ),
           const Spacer(),
@@ -109,7 +109,7 @@ class DeckListAppBar extends StatelessWidget {
               currentLanguageText,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: theme.primaryColor,
+                color: theme.primaryTextColor,
               ),
             ),
           ),

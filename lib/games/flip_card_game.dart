@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../theme/app_theme.dart';
 import 'dart:math';
 
 class FlipCardGame extends StatefulWidget {
   final Deck deck;
-  const FlipCardGame({super.key, required this.deck});
+  final AppTheme theme;
+  const FlipCardGame({super.key, required this.deck, required this.theme});
 
   @override
   State<FlipCardGame> createState() => _FlipCardGameState();
@@ -55,13 +57,16 @@ class _FlipCardGameState extends State<FlipCardGame>
       next = _delayed.removeAt(0);
     }
 
-    final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
-    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
-    final gradient = LinearGradient(
-      colors: [c1, c2],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
+    final gradient = widget.theme.isModest
+        ? widget.theme.cardGradient
+        : LinearGradient(
+            colors: [
+              Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200,
+              Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
 
     setState(() {
       _currentIndex = next;
@@ -111,6 +116,9 @@ class _FlipCardGameState extends State<FlipCardGame>
 
   Widget _buildCard(String text, LinearGradient gradient) {
     final fontSize = _getFontSize(text);
+    final textColor = widget.theme.isModest
+        ? widget.theme.primaryTextColor
+        : Colors.white;
 
     return Container(
       constraints: const BoxConstraints(
@@ -141,7 +149,7 @@ class _FlipCardGameState extends State<FlipCardGame>
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: textColor,
             ),
           ),
         ),
@@ -195,10 +203,10 @@ class _FlipCardGameState extends State<FlipCardGame>
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black87),
+        leading: BackButton(color: widget.theme.primaryTextColor),
         title: Text(
           widget.deck.name,
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: widget.theme.primaryTextColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -207,13 +215,7 @@ class _FlipCardGameState extends State<FlipCardGame>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8BBD0), Color(0xFF4DD0E1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -223,9 +225,10 @@ class _FlipCardGameState extends State<FlipCardGame>
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: Text(
                     l10n.game_cardsLeft(remainingCards, _totalCards),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: widget.theme.primaryTextColor,
                     ),
                   ),
                 ),
@@ -235,10 +238,10 @@ class _FlipCardGameState extends State<FlipCardGame>
                       ? Text(
                           l10n.common_congratulations,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: widget.theme.primaryTextColor,
                           ),
                         )
                       : _buildFlipCard(),
@@ -251,7 +254,10 @@ class _FlipCardGameState extends State<FlipCardGame>
                     widget.deck.hasBack(_currentIndex!)
                         ? (_showBack ? '' : l10n.common_tapToFlip)
                         : '',
-                    style: const TextStyle(fontSize: 16, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: widget.theme.secondaryTextColor,
+                    ),
                   ),
                 ),
               if (!finished && _currentIndex != null && _showBack)
@@ -314,16 +320,16 @@ class _FlipCardGameState extends State<FlipCardGame>
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink.shade300,
+                        backgroundColor: widget.theme.accentColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: Text(
                         l10n.common_finish,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
-                          color: Colors.black87,
+                          color: widget.theme.buttonTextColor,
                         ),
                       ),
                     ),
