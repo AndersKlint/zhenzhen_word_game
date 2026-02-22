@@ -8,7 +8,7 @@ import '../deck_service.dart';
 import '../di.dart';
 import '../locale_service.dart';
 import '../models.dart';
-import '../screens_deck_editor.dart';
+import '../deck_editor/deck_editor_screen.dart';
 import '../game_selection/game_selection_screen.dart';
 import '../platform/file_export.dart';
 import 'deck_list_controller.dart';
@@ -280,7 +280,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
   void _navigateToDeckEditor(String deckId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => DeckEditor(deckId: deckId)),
+      MaterialPageRoute(builder: (_) => DeckEditorScreen(deckId: deckId)),
     );
   }
 
