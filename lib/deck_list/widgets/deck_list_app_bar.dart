@@ -4,27 +4,35 @@ import '../../theme/app_theme.dart';
 class DeckListAppBar extends StatelessWidget {
   final VoidCallback onExport;
   final VoidCallback onImport;
-  final VoidCallback onToggleTheme;
+  final void Function(AppThemeMode mode) onSelectTheme;
   final String title;
   final String exportText;
   final String importText;
-  final String themeText;
+  final String themesTitle;
+  final String playfulThemeText;
+  final String modestThemeText;
+  final String modernThemeText;
   final String currentLanguageText;
   final VoidCallback onToggleLanguage;
   final AppTheme theme;
+  final AppThemeMode currentThemeMode;
 
   const DeckListAppBar({
     super.key,
     required this.onExport,
     required this.onImport,
-    required this.onToggleTheme,
+    required this.onSelectTheme,
     required this.title,
     required this.exportText,
     required this.importText,
-    required this.themeText,
+    required this.themesTitle,
+    required this.playfulThemeText,
+    required this.modestThemeText,
+    required this.modernThemeText,
     required this.currentLanguageText,
     required this.onToggleLanguage,
     required this.theme,
+    required this.currentThemeMode,
   });
 
   @override
@@ -38,50 +46,74 @@ class DeckListAppBar extends StatelessWidget {
               color: theme.groupHeaderColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: theme.primaryTextColor),
-              onSelected: (value) {
-                if (value == 'export') {
-                  onExport();
-                } else if (value == 'import') {
-                  onImport();
-                } else if (value == 'theme') {
-                  onToggleTheme();
-                }
+            child: MenuAnchor(
+              builder: (context, controller, child) {
+                return IconButton(
+                  onPressed: () {
+                    if (controller.isOpen) {
+                      controller.close();
+                    } else {
+                      controller.open();
+                    }
+                  },
+                  icon: Icon(Icons.more_vert, color: theme.primaryTextColor),
+                );
               },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'theme',
+              menuChildren: [
+                SubmenuButton(
+                  menuChildren: [
+                    MenuItemButton(
+                      onPressed: currentThemeMode == AppThemeMode.playful
+                          ? null
+                          : () => onSelectTheme(AppThemeMode.playful),
+                      leadingIcon: currentThemeMode == AppThemeMode.playful
+                          ? Icon(Icons.check, color: theme.primaryColor)
+                          : null,
+                      child: Text(playfulThemeText),
+                    ),
+                    MenuItemButton(
+                      onPressed: currentThemeMode == AppThemeMode.modest
+                          ? null
+                          : () => onSelectTheme(AppThemeMode.modest),
+                      leadingIcon: currentThemeMode == AppThemeMode.modest
+                          ? Icon(Icons.check, color: theme.primaryColor)
+                          : null,
+                      child: Text(modestThemeText),
+                    ),
+                    MenuItemButton(
+                      onPressed: currentThemeMode == AppThemeMode.modern
+                          ? null
+                          : () => onSelectTheme(AppThemeMode.modern),
+                      leadingIcon: currentThemeMode == AppThemeMode.modern
+                          ? Icon(Icons.check, color: theme.primaryColor)
+                          : null,
+                      child: Text(modernThemeText),
+                    ),
+                  ],
                   child: Row(
                     children: [
-                      Icon(
-                        theme.isPlayful ? Icons.brush : Icons.palette,
-                        color: theme.primaryTextColor,
-                      ),
+                      Icon(Icons.palette, color: theme.primaryTextColor),
                       const SizedBox(width: 8),
-                      Text(themeText),
+                      Text(themesTitle),
                     ],
                   ),
                 ),
-                PopupMenuItem(
-                  value: 'export',
-                  child: Row(
-                    children: [
-                      Icon(Icons.upload_file, color: theme.primaryTextColor),
-                      const SizedBox(width: 8),
-                      Text(exportText),
-                    ],
+                const Divider(),
+                MenuItemButton(
+                  onPressed: onExport,
+                  leadingIcon: Icon(
+                    Icons.upload_file,
+                    color: theme.primaryTextColor,
                   ),
+                  child: Text(exportText),
                 ),
-                PopupMenuItem(
-                  value: 'import',
-                  child: Row(
-                    children: [
-                      Icon(Icons.download, color: theme.primaryTextColor),
-                      const SizedBox(width: 8),
-                      Text(importText),
-                    ],
+                MenuItemButton(
+                  onPressed: onImport,
+                  leadingIcon: Icon(
+                    Icons.download,
+                    color: theme.primaryTextColor,
                   ),
+                  child: Text(importText),
                 ),
               ],
             ),

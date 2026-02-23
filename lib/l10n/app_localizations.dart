@@ -764,6 +764,12 @@ abstract class AppLocalizations {
   /// **'中文'**
   String get lang_chinese;
 
+  /// Title for themes submenu
+  ///
+  /// In en, this message translates to:
+  /// **'Themes'**
+  String get themes_title;
+
   /// Menu item to switch to playful theme
   ///
   /// In en, this message translates to:
@@ -775,6 +781,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Modest Theme'**
   String get theme_modest;
+
+  /// Menu item to switch to modern theme
+  ///
+  /// In en, this message translates to:
+  /// **'Modern Theme'**
+  String get theme_modern;
 }
 
 class _AppLocalizationsDelegate

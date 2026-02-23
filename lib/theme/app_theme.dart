@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppThemeMode { playful, modest }
+enum AppThemeMode { playful, modest, modern }
 
 class AppTheme {
   final String name;
@@ -51,6 +51,7 @@ class AppTheme {
 
   bool get isPlayful => name == 'playful';
   bool get isModest => name == 'modest';
+  bool get isModern => name == 'modern';
 
   static const AppTheme playful = AppTheme(
     name: 'playful',
@@ -116,6 +117,38 @@ class AppTheme {
     secondaryTextColor: Color(0xFF505050),
   );
 
+  static const AppTheme modern = AppTheme(
+    name: 'modern',
+    backgroundGradient: LinearGradient(
+      colors: [Color(0xFFFAF5FF), Color(0xFFF3E8FF)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    cardGradient: LinearGradient(
+      colors: [Color(0xFFFFFFFF), Color(0xFFFAF5FF)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    primaryColor: Color(0xFF7C3AED),
+    secondaryColor: Color(0xFF8B5CF6),
+    accentColor: Color(0xFFEC4899),
+    buttonColor: Color(0xFF7C3AED),
+    buttonTextColor: Color(0xFFFFFFFF),
+    cardShadowColor: Color(0x1D7C3AED),
+    groupHeaderColor: Color(0xE6FFFFFF),
+    groupHeaderHoverColor: Color(0x1A7C3AED),
+    groupHeaderBorderColor: Color(0xFFC4B5FD),
+    dropZoneHoverColor: Color(0x1AEC4899),
+    dropZoneTextColor: Color(0xFFBE185D),
+    floatingActionButtonColor: Color(0xFF8B5CF6),
+    appBarGradientStart: Color(0xFFFFFFFF),
+    appBarGradientEnd: Color(0xFFFAF5FF),
+    folderIconColor: Color(0xFF7C3AED),
+    playButtonColor: Color(0xFF8B5CF6),
+    primaryTextColor: Color(0xFF1E1B4B),
+    secondaryTextColor: Color(0xFF6B7280),
+  );
+
   LinearGradient gradientFromColors(List<Color> colors) {
     return LinearGradient(
       colors: colors,
@@ -125,16 +158,23 @@ class AppTheme {
   }
 
   Color cardColorAtIndex(int index) {
-    final colors = this == AppTheme.playful
-        ? Colors.primaries
-        : [const Color(0xFFFFFFFF), const Color(0xFFF5F5F5)];
-    return colors[index % colors.length];
+    if (this == AppTheme.playful) {
+      return Colors.primaries[index % Colors.primaries.length];
+    }
+    return const Color(0xFFFFFFFF);
   }
 
   LinearGradient cardGradientAtIndex(int index) {
     if (this == AppTheme.modest) {
       return const LinearGradient(
         colors: [Color(0xFFFFFFFF), Color(0xFFF5F5F5)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+    if (this == AppTheme.modern) {
+      return const LinearGradient(
+        colors: [Color(0xFFFFFFFF), Color(0xFFFAF5FF)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -152,6 +192,13 @@ class AppTheme {
     if (this == AppTheme.modest) {
       return const LinearGradient(
         colors: [Color(0xFFFFFFFF), Color(0xFFF0F0F0)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+    if (this == AppTheme.modern) {
+      return const LinearGradient(
+        colors: [Color(0xFFFFFFFF), Color(0xFFF5F3FF)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );

@@ -80,18 +80,20 @@ class _DeckListScreenState extends State<DeckListScreen> {
               DeckListAppBar(
                 onExport: () => _showExportDialog(l10n),
                 onImport: () => _importCollection(l10n),
-                onToggleTheme: () => _themeService.toggleTheme(),
+                onSelectTheme: (mode) => _themeService.setMode(mode),
                 title: l10n.deckList_title,
                 exportText: l10n.export_button,
                 importText: l10n.import_title,
-                themeText: theme.isPlayful
-                    ? l10n.theme_modest
-                    : l10n.theme_playful,
+                themesTitle: l10n.themes_title,
+                playfulThemeText: l10n.theme_playful,
+                modestThemeText: l10n.theme_modest,
+                modernThemeText: l10n.theme_modern,
                 currentLanguageText: _controller.isEnglish
                     ? l10n.lang_chinese
                     : l10n.lang_english,
                 onToggleLanguage: () => _controller.toggleLocale(),
                 theme: theme,
+                currentThemeMode: _themeService.mode,
               ),
               const SizedBox(height: 16),
               Expanded(child: _buildDeckList(l10n, theme)),

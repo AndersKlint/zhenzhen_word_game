@@ -609,6 +609,10 @@
     "description": "Short label for Chinese language"
   },
 
+  "themes_title": "Themes",
+  "@themes_title": {
+    "description": "Title for themes submenu"
+  },
   "theme_playful": "Playful Theme",
   "@theme_playful": {
     "description": "Menu item to switch to playful theme"
@@ -616,5 +620,9 @@
   "theme_modest": "Modest Theme",
   "@theme_modest": {
     "description": "Menu item to switch to modest theme"
+  },
+  "theme_modern": "Modern Theme",
+  "@theme_modern": {
+    "description": "Menu item to switch to modern theme"
   }
 }

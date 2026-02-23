@@ -398,8 +398,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lang_chinese => '中文';
 
   @override
+  String get themes_title => 'Themes';
+
+  @override
   String get theme_playful => 'Playful Theme';
 
   @override
   String get theme_modest => 'Modest Theme';
+
+  @override
+  String get theme_modern => 'Modern Theme';
 }
