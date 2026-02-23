@@ -60,7 +60,7 @@ class _RandomWordGameState extends State<RandomWordGame>
       return widget.theme.cardGradient;
     }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
-    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
+    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade300;
     return LinearGradient(
       colors: [c1, c2],
       begin: Alignment.topLeft,
@@ -69,9 +69,7 @@ class _RandomWordGameState extends State<RandomWordGame>
   }
 
   Widget _buildCard(String text, double fontSize, double cardSize) {
-    final textColor = widget.theme.isModest
-        ? widget.theme.primaryTextColor
-        : Colors.white;
+    final textColor = widget.theme.primaryTextColor;
 
     return Container(
       width: cardSize,

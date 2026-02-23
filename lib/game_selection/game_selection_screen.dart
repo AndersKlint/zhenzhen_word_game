@@ -89,11 +89,7 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_recallFront_title,
       description: l10n.game_recallFront_desc,
-      gradient: const LinearGradient(
-        colors: [Color(0xFF4DD0E1), Color.fromARGB(255, 242, 196, 253)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      gradient: theme.cardGradientAtIndex(0),
       onTap: () => _handleRecallFront(context, l10n, controller),
       theme: theme,
     );
@@ -124,11 +120,7 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_recallBoth_title,
       description: l10n.game_recallBoth_desc,
-      gradient: const LinearGradient(
-        colors: [Color(0xFFCE93D8), Color(0xFF80DEEA)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      gradient: theme.cardGradientAtIndex(4),
       onTap: () => _handleRecallBoth(context, l10n, controller),
       theme: theme,
     );
@@ -159,11 +151,7 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_randomMulti_title,
       description: l10n.game_randomMulti_desc,
-      gradient: const LinearGradient(
-        colors: [Color(0xFF4DD0E1), Color(0xFFFFD180)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      gradient: theme.cardGradientAtIndex(8),
       onTap: () => _handleRandomMulti(context, l10n, controller),
       theme: theme,
     );
@@ -205,11 +193,7 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_reverseRecall_title,
       description: l10n.game_reverseRecall_desc,
-      gradient: const LinearGradient(
-        colors: [Color(0xFFFFB74D), Color(0xFFFF8A65)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      gradient: theme.cardGradientAtIndex(12),
       onTap: () => _handleReverseRecall(context, l10n, controller),
       theme: theme,
     );
@@ -251,11 +235,7 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_multipleChoice_title,
       description: l10n.game_multipleChoice_desc,
-      gradient: const LinearGradient(
-        colors: [Color(0xFF7E57C2), Color(0xFF42A5F5)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      gradient: theme.cardGradientAtIndex(16),
       onTap: () => _handleMultipleChoice(context, l10n, controller),
       theme: theme,
     );
@@ -297,11 +277,7 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_memoryMatch_title,
       description: l10n.game_memoryMatch_desc,
-      gradient: const LinearGradient(
-        colors: [Color(0xFF4DB6AC), Color(0xFF81C784)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      gradient: theme.cardGradientAtIndex(20),
       onTap: () => _handleMemoryMatch(context, l10n, controller),
       theme: theme,
     );

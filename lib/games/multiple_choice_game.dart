@@ -119,7 +119,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
       return widget.theme.cardGradient;
     }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
-    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400;
+    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade300;
     return LinearGradient(
       colors: [c1, c2],
       begin: Alignment.topLeft,
@@ -267,9 +267,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color: widget.theme.isModest
-                        ? widget.theme.primaryTextColor
-                        : Colors.white,
+                    color: widget.theme.primaryTextColor,
                   ),
                 ),
               ),

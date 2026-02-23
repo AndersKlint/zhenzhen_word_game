@@ -66,7 +66,7 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
         : LinearGradient(
             colors: [
               Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200,
-              Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade400,
+              Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade300,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -118,9 +118,7 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
 
   Widget _buildCard(String text, LinearGradient gradient) {
     final fontSize = _getFontSize(text);
-    final textColor = widget.theme.isModest
-        ? widget.theme.primaryTextColor
-        : Colors.white;
+    final textColor = widget.theme.primaryTextColor;
 
     return Container(
       constraints: const BoxConstraints(

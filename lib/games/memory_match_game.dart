@@ -309,7 +309,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
     final backGradient = widget.theme.isModest
         ? widget.theme.cardGradient
         : LinearGradient(
-            colors: [Colors.blue.shade300, Colors.purple.shade300],
+            colors: [Colors.blue.shade200, Colors.purple.shade300],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           );
@@ -339,9 +339,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
                     style: TextStyle(
                       fontSize: _getFontSize(tile.text),
                       fontWeight: FontWeight.bold,
-                      color: widget.theme.isModest
-                          ? widget.theme.primaryTextColor
-                          : Colors.white,
+                      color: widget.theme.primaryTextColor,
                     ),
                   ),
                 )
@@ -358,7 +356,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
   LinearGradient _getTileGradient(_MemoryTile tile) {
     if (tile.isMatched) {
       return LinearGradient(
-        colors: [Colors.green.shade200, Colors.green.shade400],
+        colors: [Colors.green.shade200, Colors.green.shade300],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -369,7 +367,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
     final baseIndex = tile.cardIndex % Colors.primaries.length;
     final color = Colors.primaries[baseIndex];
     return LinearGradient(
-      colors: [color.shade200, color.shade400],
+      colors: [color.shade200, color.shade300],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );

@@ -159,7 +159,7 @@ class AppTheme {
     final primary1 = Colors.primaries[hash % Colors.primaries.length];
     final primary2 = Colors.primaries[(hash + 3) % Colors.primaries.length];
     return LinearGradient(
-      colors: [primary1.shade200, primary2.shade400],
+      colors: [primary1.shade200, primary2.shade300],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
