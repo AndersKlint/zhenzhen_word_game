@@ -398,4 +398,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get theme_modern => '现代主题';
+
+  @override
+  String get theme_dark => '深色主题';
 }

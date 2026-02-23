@@ -85,6 +85,13 @@ class _RecallWordGameState extends State<RecallWordGame>
     if (widget.theme.isMinimalistic) {
       return widget.theme.cardGradient;
     }
+    if (widget.theme.isDark) {
+      return const LinearGradient(
+        colors: [Color(0xFF3D3D4A), Color(0xFF2D2D3A)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
     if (widget.theme.isModern) {
       final c1 =
           Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade50;

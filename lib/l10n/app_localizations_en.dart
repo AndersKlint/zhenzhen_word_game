@@ -408,4 +408,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get theme_modern => 'Modern Theme';
+
+  @override
+  String get theme_dark => 'Dark Theme';
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppThemeMode { playful, minimalistic, modern }
+enum AppThemeMode { playful, minimalistic, modern, dark }
 
 class AppTheme {
   final String name;
@@ -52,6 +52,7 @@ class AppTheme {
   bool get isPlayful => name == 'playful';
   bool get isMinimalistic => name == 'minimalistic';
   bool get isModern => name == 'modern';
+  bool get isDark => name == 'dark';
 
   static const AppTheme playful = AppTheme(
     name: 'playful',
@@ -149,6 +150,41 @@ class AppTheme {
     secondaryTextColor: Color(0xFF6B7280),
   );
 
+  static const AppTheme dark = AppTheme(
+    name: 'dark',
+    backgroundGradient: LinearGradient(
+      colors: [
+        Color.fromARGB(255, 32, 32, 32),
+        Color.fromARGB(255, 32, 32, 32),
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    cardGradient: LinearGradient(
+      colors: [Color(0xFF2D2D3A), Color(0xFF3D3D4A)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    primaryColor: Color(0xFF9333EA),
+    secondaryColor: Color(0xFF6366F1),
+    accentColor: Color(0xFFEC4899),
+    buttonColor: Color(0xFF9333EA),
+    buttonTextColor: Color(0xFFFFFFFF),
+    cardShadowColor: Color(0x40000000),
+    groupHeaderColor: Color(0xFF2D2D3A),
+    groupHeaderHoverColor: Color(0xFF3D3D4A),
+    groupHeaderBorderColor: Color(0xFF4B4B5C),
+    dropZoneHoverColor: Color(0x20EC4899),
+    dropZoneTextColor: Color(0xFFEC4899),
+    floatingActionButtonColor: Color(0xFF9333EA),
+    appBarGradientStart: Color(0xFF1A1A2E),
+    appBarGradientEnd: Color(0xFF0F0F23),
+    folderIconColor: Color(0xFF9333EA),
+    playButtonColor: Color(0xFF9333EA),
+    primaryTextColor: Color(0xFFE5E5E5),
+    secondaryTextColor: Color(0xFF9CA3AF),
+  );
+
   LinearGradient gradientFromColors(List<Color> colors) {
     return LinearGradient(
       colors: colors,
@@ -179,6 +215,13 @@ class AppTheme {
         end: Alignment.bottomRight,
       );
     }
+    if (this == AppTheme.dark) {
+      return const LinearGradient(
+        colors: [Color(0xFF3D3D4A), Color(0xFF2D2D3A)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
     final primary1 = Colors.primaries[index % Colors.primaries.length];
     final primary2 = Colors.primaries[(index + 3) % Colors.primaries.length];
     return LinearGradient(
@@ -199,6 +242,13 @@ class AppTheme {
     if (this == AppTheme.modern) {
       return const LinearGradient(
         colors: [Color(0xFFFFFFFF), Color(0xFFF5F3FF)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+    if (this == AppTheme.dark) {
+      return const LinearGradient(
+        colors: [Color(0xFF4B4B5C), Color(0xFF3D3D4A)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );

@@ -787,6 +787,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Modern Theme'**
   String get theme_modern;
+
+  /// Menu item to switch to dark theme
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Theme'**
+  String get theme_dark;
 }
 
 class _AppLocalizationsDelegate

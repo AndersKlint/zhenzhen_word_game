@@ -88,6 +88,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
                 playfulThemeText: l10n.theme_playful,
                 minimalisticThemeText: l10n.theme_minimalistic,
                 modernThemeText: l10n.theme_modern,
+                darkThemeText: l10n.theme_dark,
                 currentLanguageText: _controller.isEnglish
                     ? l10n.lang_chinese
                     : l10n.lang_english,

@@ -60,6 +60,12 @@ class _FlipCardGameState extends State<FlipCardGame>
     LinearGradient gradient;
     if (widget.theme.isMinimalistic) {
       gradient = widget.theme.cardGradient;
+    } else if (widget.theme.isDark) {
+      gradient = const LinearGradient(
+        colors: [Color(0xFF3D3D4A), Color(0xFF2D2D3A)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
     } else if (widget.theme.isModern) {
       gradient = LinearGradient(
         colors: [

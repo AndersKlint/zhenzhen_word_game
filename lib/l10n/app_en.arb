@@ -624,5 +624,9 @@
   "theme_modern": "Modern Theme",
   "@theme_modern": {
     "description": "Menu item to switch to modern theme"
+  },
+  "theme_dark": "Dark Theme",
+  "@theme_dark": {
+    "description": "Menu item to switch to dark theme"
   }
 }

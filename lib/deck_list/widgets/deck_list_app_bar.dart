@@ -12,6 +12,7 @@ class DeckListAppBar extends StatelessWidget {
   final String playfulThemeText;
   final String minimalisticThemeText;
   final String modernThemeText;
+  final String darkThemeText;
   final String currentLanguageText;
   final VoidCallback onToggleLanguage;
   final AppTheme theme;
@@ -29,6 +30,7 @@ class DeckListAppBar extends StatelessWidget {
     required this.playfulThemeText,
     required this.minimalisticThemeText,
     required this.modernThemeText,
+    required this.darkThemeText,
     required this.currentLanguageText,
     required this.onToggleLanguage,
     required this.theme,
@@ -88,6 +90,15 @@ class DeckListAppBar extends StatelessWidget {
                           ? Icon(Icons.check, color: theme.primaryColor)
                           : null,
                       child: Text(modernThemeText),
+                    ),
+                    MenuItemButton(
+                      onPressed: currentThemeMode == AppThemeMode.dark
+                          ? null
+                          : () => onSelectTheme(AppThemeMode.dark),
+                      leadingIcon: currentThemeMode == AppThemeMode.dark
+                          ? Icon(Icons.check, color: theme.primaryColor)
+                          : null,
+                      child: Text(darkThemeText),
                     ),
                   ],
                   child: Row(
