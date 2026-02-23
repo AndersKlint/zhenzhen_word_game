@@ -57,16 +57,28 @@ class _FlipCardGameState extends State<FlipCardGame>
       next = _delayed.removeAt(0);
     }
 
-    final gradient = widget.theme.isMinimalistic
-        ? widget.theme.cardGradient
-        : LinearGradient(
-            colors: [
-              Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200,
-              Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade300,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          );
+    LinearGradient gradient;
+    if (widget.theme.isMinimalistic) {
+      gradient = widget.theme.cardGradient;
+    } else if (widget.theme.isModern) {
+      gradient = LinearGradient(
+        colors: [
+          Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade50,
+          Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade100,
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else {
+      gradient = LinearGradient(
+        colors: [
+          Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade100,
+          Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200,
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
 
     setState(() {
       _currentIndex = next;

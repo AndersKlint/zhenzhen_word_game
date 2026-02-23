@@ -118,8 +118,19 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
     if (widget.theme.isMinimalistic) {
       return widget.theme.cardGradient;
     }
-    final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
-    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade300;
+    if (widget.theme.isModern) {
+      final c1 =
+          Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade50;
+      final c2 =
+          Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade100;
+      return LinearGradient(
+        colors: [c1, c2],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+    final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade100;
+    final c2 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
     return LinearGradient(
       colors: [c1, c2],
       begin: Alignment.topLeft,
