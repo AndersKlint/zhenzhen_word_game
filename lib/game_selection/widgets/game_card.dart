@@ -19,7 +19,7 @@ class GameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardGradient = theme.isModest ? theme.cardGradient : gradient;
+    final cardGradient = theme.isMinimalistic ? theme.cardGradient : gradient;
     return GestureDetector(
       onTap: onTap,
       child: Container(

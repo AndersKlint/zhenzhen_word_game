@@ -110,12 +110,6 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
     super.dispose();
   }
 
-  double _getFontSize(String text) {
-    if (text.length <= 5) return 18;
-    if (text.length <= 10) return 14;
-    return 15;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -249,64 +243,46 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
   Widget _buildGameGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const padding = 48.0; // 16 top + 32 bottom
-        const spacing = 8.0;
-        const minCardSize = 50.0;
-
-        final availableWidth = constraints.maxWidth - padding;
-        final availableHeight = constraints.maxHeight - padding;
         final tileCount = _tiles.length;
 
-        // Start with a reasonable column count based on tile count
-        int startCols;
-        if (tileCount <= 4) {
-          startCols = 2;
-        } else if (tileCount <= 6) {
-          startCols = 3;
-        } else if (tileCount <= 9) {
-          startCols = 4;
-        } else if (tileCount <= 16) {
-          startCols = 6;
-        } else {
-          startCols = 8;
-        }
+        const spacing = 8.0;
+        const preferredSize = 400.0;
+        const minSize = 160.0;
 
-        // Try from starting column count, adjusting based on available space
-        int crossAxisCount = startCols.clamp(2, 8);
+        final maxCols = (constraints.maxWidth / (preferredSize + spacing))
+            .floor()
+            .clamp(1, tileCount);
+        final rows = (tileCount / maxCols).ceil();
+        double cardSize = (constraints.maxHeight - (rows - 1) * spacing) / rows;
+        cardSize = cardSize.clamp(minSize, preferredSize);
 
-        // Try to fit with larger cards first (fewer columns)
-        for (int cols = startCols; cols >= 2; cols--) {
-          final rows = (tileCount / cols).ceil();
-          final cardWidth = (availableWidth - (cols - 1) * spacing) / cols;
-          final cardHeight = (availableHeight - (rows - 1) * spacing) / rows;
-          final cardSize = cardWidth < cardHeight ? cardWidth : cardHeight;
-
-          if (cardSize >= minCardSize) {
-            crossAxisCount = cols;
-            break;
-          }
-        }
-
-        return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: spacing,
-            mainAxisSpacing: spacing,
-            childAspectRatio: 1.0,
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+          child: Center(
+            child: Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
+              alignment: WrapAlignment.center,
+              children: List.generate(tileCount, (index) {
+                return SizedBox(
+                  width: cardSize,
+                  height: cardSize,
+                  child: _buildTile(index, cardSize),
+                );
+              }),
+            ),
           ),
-          itemCount: tileCount,
-          itemBuilder: (context, index) => _buildTile(index),
         );
       },
     );
   }
 
-  Widget _buildTile(int index) {
+  Widget _buildTile(int index, double cardSize) {
     final tile = _tiles[index];
+    final text = tile.text;
     final isFlipped = tile.isFlipped || tile.isMatched;
 
-    final backGradient = widget.theme.isModest
+    final backGradient = widget.theme.isMinimalistic
         ? widget.theme.cardGradient
         : LinearGradient(
             colors: [Colors.blue.shade200, Colors.purple.shade300],
@@ -314,16 +290,35 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
             end: Alignment.bottomRight,
           );
 
+    double baseFontSize = cardSize * 0.14;
+    const double maxReduction = 5.0;
+    double lengthFactor = text.length / 10;
+    double fontReduction = (lengthFactor * 2).clamp(0, maxReduction);
+    double fontSize = (baseFontSize - fontReduction).clamp(
+      baseFontSize - maxReduction,
+      baseFontSize,
+    );
+
+    final padding = cardSize * 0.08;
+    final borderRadius = cardSize * 0.15;
+    final iconSize = cardSize * 0.35;
+
     return GestureDetector(
       onTap: () => _flipTile(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
+        constraints: BoxConstraints(
+          minWidth: cardSize,
+          minHeight: cardSize,
+          maxWidth: cardSize,
+          maxHeight: cardSize,
+        ),
         decoration: BoxDecoration(
           gradient: isFlipped ? _getTileGradient(tile) : backGradient,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(tile.isMatched ? 0 : 0.15),
+              color: Colors.black.withValues(alpha: tile.isMatched ? 0 : 0.15),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -332,12 +327,12 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
         child: Center(
           child: isFlipped
               ? Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(padding),
                   child: Text(
-                    tile.text,
+                    text,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: _getFontSize(tile.text),
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
                       color: widget.theme.primaryTextColor,
                     ),
@@ -345,8 +340,8 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
                 )
               : Icon(
                   Icons.help_outline,
-                  size: 40,
-                  color: Colors.white.withOpacity(0.8),
+                  size: iconSize,
+                  color: Colors.white.withValues(alpha: 0.8),
                 ),
         ),
       ),
@@ -361,7 +356,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
         end: Alignment.bottomRight,
       );
     }
-    if (widget.theme.isModest) {
+    if (widget.theme.isMinimalistic) {
       return widget.theme.cardGradient;
     }
     final baseIndex = tile.cardIndex % Colors.primaries.length;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppThemeMode { playful, modest, modern }
+enum AppThemeMode { playful, minimalistic, modern }
 
 class AppTheme {
   final String name;
@@ -50,7 +50,7 @@ class AppTheme {
   });
 
   bool get isPlayful => name == 'playful';
-  bool get isModest => name == 'modest';
+  bool get isMinimalistic => name == 'minimalistic';
   bool get isModern => name == 'modern';
 
   static const AppTheme playful = AppTheme(
@@ -76,7 +76,7 @@ class AppTheme {
     groupHeaderBorderColor: Color(0xFFAB47BC),
     dropZoneHoverColor: Color(0x1AFF9800),
     dropZoneTextColor: Color(0xFFF57C00),
-    floatingActionButtonColor: Color(0xFFF06292),
+    floatingActionButtonColor: Color(0xFF4DD0E1),
     appBarGradientStart: Color(0xFFF8BBD0),
     appBarGradientEnd: Color(0xFF4DD0E1),
     folderIconColor: Color(0xFFAB47BC),
@@ -85,8 +85,8 @@ class AppTheme {
     secondaryTextColor: Color(0x8A000000),
   );
 
-  static const AppTheme modest = AppTheme(
-    name: 'modest',
+  static const AppTheme minimalistic = AppTheme(
+    name: 'minimalistic',
     backgroundGradient: LinearGradient(
       colors: [Color(0xFFF5F5F5), Color(0xFFE8E8E8)],
       begin: Alignment.topLeft,
@@ -165,7 +165,7 @@ class AppTheme {
   }
 
   LinearGradient cardGradientAtIndex(int index) {
-    if (this == AppTheme.modest) {
+    if (this == AppTheme.minimalistic) {
       return const LinearGradient(
         colors: [Color(0xFFFFFFFF), Color(0xFFF5F5F5)],
         begin: Alignment.topLeft,
@@ -189,7 +189,7 @@ class AppTheme {
   }
 
   LinearGradient randomGradient(int hash) {
-    if (this == AppTheme.modest) {
+    if (this == AppTheme.minimalistic) {
       return const LinearGradient(
         colors: [Color(0xFFFFFFFF), Color(0xFFF0F0F0)],
         begin: Alignment.topLeft,

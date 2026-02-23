@@ -404,7 +404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get theme_playful => 'Playful Theme';
 
   @override
-  String get theme_modest => 'Modest Theme';
+  String get theme_minimalistic => 'Minimalistic Theme';
 
   @override
   String get theme_modern => 'Modern Theme';

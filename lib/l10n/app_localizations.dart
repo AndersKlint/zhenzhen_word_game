@@ -776,11 +776,11 @@ abstract class AppLocalizations {
   /// **'Playful Theme'**
   String get theme_playful;
 
-  /// Menu item to switch to modest theme
+  /// Menu item to switch to minimalistic theme
   ///
   /// In en, this message translates to:
-  /// **'Modest Theme'**
-  String get theme_modest;
+  /// **'Minimalistic Theme'**
+  String get theme_minimalistic;
 
   /// Menu item to switch to modern theme
   ///

@@ -57,7 +57,7 @@ class _FlipCardGameState extends State<FlipCardGame>
       next = _delayed.removeAt(0);
     }
 
-    final gradient = widget.theme.isModest
+    final gradient = widget.theme.isMinimalistic
         ? widget.theme.cardGradient
         : LinearGradient(
             colors: [

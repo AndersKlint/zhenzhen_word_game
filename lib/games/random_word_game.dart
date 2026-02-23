@@ -56,7 +56,7 @@ class _RandomWordGameState extends State<RandomWordGame>
   }
 
   LinearGradient _randomGradient() {
-    if (widget.theme.isModest) {
+    if (widget.theme.isMinimalistic) {
       return widget.theme.cardGradient;
     }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;
@@ -68,20 +68,31 @@ class _RandomWordGameState extends State<RandomWordGame>
     );
   }
 
-  Widget _buildCard(String text, double fontSize, double cardSize) {
+  Widget _buildCard(String text, double cardSize) {
     final textColor = widget.theme.primaryTextColor;
 
+    double baseFontSize = cardSize * 0.14;
+    const double maxReduction = 5.0;
+    double lengthFactor = text.length / 10;
+    double fontReduction = (lengthFactor * 2).clamp(0, maxReduction);
+    double fontSize = (baseFontSize - fontReduction).clamp(
+      baseFontSize - maxReduction,
+      baseFontSize,
+    );
+
     return Container(
-      width: cardSize,
-      height: cardSize,
-      margin: const EdgeInsets.all(4),
-      padding: EdgeInsets.all(cardSize * 0.08),
+      constraints: BoxConstraints(
+        minWidth: cardSize,
+        minHeight: cardSize,
+        maxWidth: cardSize,
+        maxHeight: cardSize,
+      ),
       decoration: BoxDecoration(
         gradient: _randomGradient(),
         borderRadius: BorderRadius.circular(cardSize * 0.15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -99,58 +110,6 @@ class _RandomWordGameState extends State<RandomWordGame>
         ),
       ),
     );
-  }
-
-  ({double cardSize, double fontSize}) _calculateCardSize(
-    int cardCount,
-    double availableWidth,
-    double availableHeight,
-  ) {
-    const spacing = 8.0;
-    const minCardSize = 60.0;
-    const maxCardSize = 120.0;
-
-    // Start with a reasonable column count based on card count
-    int startCols;
-    if (cardCount <= 2) {
-      startCols = 2;
-    } else if (cardCount <= 4) {
-      startCols = 3;
-    } else if (cardCount <= 6) {
-      startCols = 4;
-    } else {
-      startCols = 6;
-    }
-
-    // Try from starting column count, adjusting based on available space
-    // Try larger cards first (fewer columns)
-    for (int cols = startCols; cols >= 2; cols--) {
-      final rows = (cardCount / cols).ceil();
-      final cardWidth = (availableWidth - (cols - 1) * spacing) / cols;
-      final cardHeight = (availableHeight - (rows - 1) * spacing) / rows;
-      final cardSize = cardWidth < cardHeight ? cardWidth : cardHeight;
-
-      if (cardSize >= minCardSize) {
-        // Calculate font size based on card size
-        final fontSizeRatio = cardSize / maxCardSize;
-        double fontSize;
-        if (cardCount <= 2) {
-          fontSize = 32 * fontSizeRatio;
-        } else if (cardCount <= 4) {
-          fontSize = 24 * fontSizeRatio;
-        } else if (cardCount <= 6) {
-          fontSize = 18 * fontSizeRatio;
-        } else {
-          fontSize = 16 * fontSizeRatio;
-        }
-        fontSize = fontSize.clamp(10.0, 32.0);
-
-        return (cardSize: cardSize, fontSize: fontSize);
-      }
-    }
-
-    // Fallback to minimum size
-    return (cardSize: minCardSize, fontSize: 10.0);
   }
 
   @override
@@ -175,70 +134,65 @@ class _RandomWordGameState extends State<RandomWordGame>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Center(
-                    child: finished
-                        ? Text(
+                  child: finished
+                      ? Center(
+                          child: Text(
                             l10n.common_allDone,
                             style: TextStyle(
                               fontSize: 50,
                               fontWeight: FontWeight.bold,
                               color: widget.theme.primaryTextColor,
                             ),
-                          )
-                        : LayoutBuilder(
-                            builder: (context, constraints) {
-                              final cardCount = current
-                                  .where((c) => c.isNotEmpty)
-                                  .length;
-                              // GridView has padding of 16 top + 24 bottom = 40
-                              final availableHeight =
-                                  constraints.maxHeight - 40;
-                              final ({double cardSize, double fontSize})
-                              sizing = _calculateCardSize(
-                                cardCount,
-                                constraints.maxWidth,
-                                availableHeight,
-                              );
-                              final cols =
-                                  (constraints.maxWidth / sizing.cardSize)
-                                      .floor()
-                                      .clamp(2, 6);
+                          ),
+                        )
+                      : LayoutBuilder(
+                          builder: (context, constraints) {
+                            final nonEmptyCards = current
+                                .where((c) => c.isNotEmpty)
+                                .toList();
 
-                              return GridView.builder(
-                                padding: const EdgeInsets.fromLTRB(
-                                  16,
-                                  16,
-                                  16,
-                                  24,
-                                ),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: cols,
-                                      crossAxisSpacing: 8,
-                                      mainAxisSpacing: 8,
-                                      childAspectRatio: 1.0,
-                                    ),
-                                itemCount: cardCount,
-                                itemBuilder: (context, index) {
-                                  final nonEmptyCards = current
-                                      .where((c) => c.isNotEmpty)
-                                      .toList();
-                                  return ScaleTransition(
-                                    scale: CurvedAnimation(
-                                      parent: _animController,
-                                      curve: Curves.elasticOut,
-                                    ),
-                                    child: _buildCard(
-                                      nonEmptyCards[index],
-                                      sizing.fontSize,
-                                      sizing.cardSize,
+                            final cardCount = nonEmptyCards.length;
+
+                            const spacing = 8.0;
+                            const preferredSize = 400.0;
+                            const minSize = 200.0;
+
+                            final maxCols =
+                                (constraints.maxWidth /
+                                        (preferredSize + spacing))
+                                    .floor()
+                                    .clamp(1, cardCount);
+                            final rows = (cardCount / maxCols).ceil();
+                            double cardSize =
+                                (constraints.maxHeight - (rows - 1) * spacing) /
+                                rows;
+                            cardSize = cardSize.clamp(minSize, preferredSize);
+
+                            return Center(
+                              child: Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                alignment: WrapAlignment.center,
+                                children: List.generate(cardCount, (index) {
+                                  return SizedBox(
+                                    width: cardSize,
+                                    height: cardSize,
+                                    child: ScaleTransition(
+                                      scale: CurvedAnimation(
+                                        parent: _animController,
+                                        curve: Curves.elasticOut,
+                                      ),
+                                      child: _buildCard(
+                                        nonEmptyCards[index],
+                                        cardSize,
+                                      ),
                                     ),
                                   );
-                                },
-                              );
-                            },
-                          ),
-                  ),
+                                }),
+                              ),
+                            );
+                          },
+                        ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(

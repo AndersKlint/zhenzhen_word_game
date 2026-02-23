@@ -115,7 +115,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
   }
 
   LinearGradient _randomGradient() {
-    if (widget.theme.isModest) {
+    if (widget.theme.isMinimalistic) {
       return widget.theme.cardGradient;
     }
     final c1 = Colors.primaries[_rnd.nextInt(Colors.primaries.length)].shade200;

@@ -617,9 +617,9 @@
   "@theme_playful": {
     "description": "Menu item to switch to playful theme"
   },
-  "theme_modest": "Modest Theme",
-  "@theme_modest": {
-    "description": "Menu item to switch to modest theme"
+  "theme_minimalistic": "Minimalistic Theme",
+  "@theme_minimalistic": {
+    "description": "Menu item to switch to minimalistic theme"
   },
   "theme_modern": "Modern Theme",
   "@theme_modern": {

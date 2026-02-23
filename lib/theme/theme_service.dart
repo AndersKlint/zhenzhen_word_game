@@ -9,12 +9,12 @@ class ThemeService extends ChangeNotifier {
   AppThemeMode get mode => _mode;
   AppTheme get theme => switch (_mode) {
     AppThemeMode.playful => AppTheme.playful,
-    AppThemeMode.modest => AppTheme.modest,
+    AppThemeMode.minimalistic => AppTheme.minimalistic,
     AppThemeMode.modern => AppTheme.modern,
   };
 
   bool get isPlayful => _mode == AppThemeMode.playful;
-  bool get isModest => _mode == AppThemeMode.modest;
+  bool get isMinimalistic => _mode == AppThemeMode.minimalistic;
   bool get isModern => _mode == AppThemeMode.modern;
 
   Future<void> init() async {
@@ -23,7 +23,7 @@ class ThemeService extends ChangeNotifier {
     if (savedTheme != null) {
       _mode = switch (savedTheme) {
         'playful' => AppThemeMode.playful,
-        'modest' => AppThemeMode.modest,
+        'minimalistic' => AppThemeMode.minimalistic,
         'modern' => AppThemeMode.modern,
         _ => AppThemeMode.playful,
       };
@@ -37,7 +37,7 @@ class ThemeService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final themeName = switch (mode) {
       AppThemeMode.playful => 'playful',
-      AppThemeMode.modest => 'modest',
+      AppThemeMode.minimalistic => 'minimalistic',
       AppThemeMode.modern => 'modern',
     };
     await prefs.setString(_themeKey, themeName);
