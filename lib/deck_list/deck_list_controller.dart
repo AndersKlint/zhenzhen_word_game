@@ -111,6 +111,21 @@ class DeckListController extends ChangeNotifier {
     return await _deckService.importCollection(json, onConflict: onConflict);
   }
 
+  Future<ImportResult?> importData(
+    List<DeckGroup> importedGroups,
+    List<Deck> importedDecks, {
+    required ConflictResolution Function(String deckName, String? groupId)
+    onConflict,
+    Map<String, String>? oldToNewGroupId,
+  }) async {
+    return await _deckService.importData(
+      importedGroups,
+      importedDecks,
+      onConflict: onConflict,
+      oldToNewGroupId: oldToNewGroupId,
+    );
+  }
+
   @override
   void dispose() {
     _deckService.removeListener(_onDeckServiceChanged);

@@ -181,7 +181,7 @@ class DeckService extends ChangeNotifier {
     while (getDeckByName(name, groupId: groupId) != null) {
       final match = RegExp(r'^(.+?)\s*\((\d+)\)$').firstMatch(baseName);
       if (match != null) {
-        name = '${match.group(1)} (${suffix})';
+        name = '${match.group(1)} ($suffix)';
       } else {
         name = '$baseName ($suffix)';
       }
@@ -211,6 +211,189 @@ class DeckService extends ChangeNotifier {
       'groups': exportedGroups,
       'decks': exportedDecks,
     });
+  }
+
+  List<String> _splitTabSeparatedWithQuotes(String line) {
+    final columns = <String>[];
+    var current = StringBuffer();
+    var inQuotes = false;
+    var i = 0;
+
+    while (i < line.length) {
+      final char = line[i];
+
+      if (char == '"') {
+        if (inQuotes) {
+          if (i + 1 < line.length && line[i + 1] == '"') {
+            current.write('"');
+            i += 2;
+            continue;
+          }
+          inQuotes = false;
+        } else {
+          inQuotes = true;
+        }
+        i++;
+      } else if (char == '\t' && !inQuotes) {
+        columns.add(current.toString());
+        current = StringBuffer();
+        i++;
+      } else {
+        current.write(char);
+        i++;
+      }
+    }
+
+    columns.add(current.toString());
+    return columns;
+  }
+
+  ({List<DeckGroup> groups, List<Deck> decks}) parseLaoziCsv(
+    String content,
+    String filename,
+  ) {
+    final lines = content.split('\n');
+    if (lines.isEmpty) {
+      return (groups: <DeckGroup>[], decks: <Deck>[]);
+    }
+
+    final header = _splitTabSeparatedWithQuotes(lines.first);
+    final numColumns = header.length;
+    if (!header.contains('hanzi') ||
+        !header.contains('meaning') ||
+        !header.contains('pinyin')) {
+      throw const FormatException(
+        'Invalid CSV format: missing required columns (hanzi, meaning, pinyin)',
+      );
+    }
+    final hanziIdx = 0;
+    final meaningIdx = 1;
+    final pinyinIdx = 2;
+    final tagsIdx = numColumns - 1;
+
+    final nameToGroup = <String, DeckGroup>{};
+    final nameToGroupId = <String, String>{};
+    final deckKeyToDeck = <(String, String?), Deck>{};
+
+    void ensureGroup(String name) {
+      if (!nameToGroup.containsKey(name)) {
+        final id = _id();
+        nameToGroup[name] = DeckGroup(id: id, name: name);
+        nameToGroupId[name] = id;
+      }
+    }
+
+    String? extractTag(String tags, String key) {
+      final pattern = RegExp('$key:([^\\s]+)');
+      final match = pattern.firstMatch(tags);
+      if (match == null) return null;
+      return Uri.decodeComponent(match.group(1)!);
+    }
+
+    List<String> joinMultilineRecords(List<String> lines) {
+      final result = <String>[];
+      var buffer = StringBuffer();
+      var inQuotes = false;
+      var pendingNewlines = 0;
+
+      for (var i = 1; i < lines.length; i++) {
+        final line = lines[i];
+
+        if (line.trim().isEmpty) {
+          if (inQuotes) {
+            pendingNewlines++;
+          }
+          continue;
+        }
+
+        var quoteCount = 0;
+        for (var j = 0; j < line.length; j++) {
+          if (line[j] == '"') {
+            quoteCount++;
+          }
+        }
+
+        if (inQuotes) {
+          if (pendingNewlines > 0) {
+            buffer.write('\n' * pendingNewlines);
+            pendingNewlines = 0;
+          } else {
+            buffer.write('\n');
+          }
+          buffer.write(line);
+          if (quoteCount % 2 == 1) {
+            inQuotes = false;
+            result.add(buffer.toString());
+            buffer = StringBuffer();
+          }
+        } else {
+          if (quoteCount % 2 == 1) {
+            buffer.write(line);
+            inQuotes = true;
+          } else {
+            result.add(line);
+          }
+        }
+      }
+
+      if (buffer.isNotEmpty) {
+        result.add(buffer.toString());
+      }
+
+      return result;
+    }
+
+    final records = joinMultilineRecords(lines);
+
+    for (final line in records) {
+      final columns = _splitTabSeparatedWithQuotes(line);
+
+      if (columns.length < numColumns) continue;
+
+      final hanzi = columns[hanziIdx].trim();
+      if (hanzi.isEmpty) continue;
+
+      final meaning = meaningIdx < columns.length
+          ? columns[meaningIdx].trim()
+          : '';
+      final pinyin = pinyinIdx < columns.length
+          ? columns[pinyinIdx].trim()
+          : '';
+
+      String? deckName = filename;
+      String? groupName;
+
+      if (tagsIdx >= 0 && tagsIdx < columns.length) {
+        final tags = columns[tagsIdx].trim();
+        deckName = extractTag(tags, 'deck') ?? filename;
+        groupName = extractTag(tags, 'group');
+      }
+
+      String? groupId;
+      if (groupName != null) {
+        ensureGroup(groupName);
+        groupId = nameToGroupId[groupName];
+      }
+
+      final deckKey = (deckName, groupId);
+      var deck = deckKeyToDeck[deckKey];
+      if (deck == null) {
+        deck = Deck(id: _id(), name: deckName, groupId: groupId);
+        deckKeyToDeck[deckKey] = deck;
+      }
+
+      final idx = deck.words.length;
+      deck.words.add(hanzi);
+      final back = pinyin.isNotEmpty ? '$pinyin\n$meaning' : meaning;
+      if (back.isNotEmpty) {
+        deck.setBack(idx, back);
+      }
+    }
+
+    return (
+      groups: nameToGroup.values.toList(),
+      decks: deckKeyToDeck.values.toList(),
+    );
   }
 
   Future<ImportResult> importCollection(
@@ -243,6 +426,84 @@ class DeckService extends ChangeNotifier {
         final newId = _id();
         oldToNewGroupId[importedGroup.id] = newId;
         groups.add(DeckGroup(id: newId, name: importedGroup.name));
+      }
+    }
+
+    int decksImported = 0;
+    int decksSkipped = 0;
+    int decksReplaced = 0;
+    int decksRenamed = 0;
+
+    for (final importedDeck in importedDecks) {
+      final newGroupId = importedDeck.groupId != null
+          ? oldToNewGroupId[importedDeck.groupId]
+          : null;
+
+      final existing = getDeckByName(importedDeck.name, groupId: newGroupId);
+
+      String deckName = importedDeck.name;
+
+      if (existing != null) {
+        final resolution = onConflict(importedDeck.name, newGroupId);
+        if (resolution == ConflictResolution.skip) {
+          decksSkipped++;
+          continue;
+        } else if (resolution == ConflictResolution.replace) {
+          decks.remove(existing);
+          decksReplaced++;
+        } else if (resolution == ConflictResolution.rename) {
+          deckName = _findAvailableName(importedDeck.name, groupId: newGroupId);
+          decksRenamed++;
+        }
+      }
+
+      final newId = _id();
+
+      decks.add(
+        Deck(
+          id: newId,
+          name: deckName,
+          words: importedDeck.words,
+          backs: importedDeck.backs,
+          groupId: newGroupId,
+        ),
+      );
+      decksImported++;
+    }
+
+    await _save();
+    notifyListeners();
+
+    return ImportResult(
+      decksImported: decksImported,
+      decksSkipped: decksSkipped,
+      decksReplaced: decksReplaced,
+      groupsMerged: groupsMerged,
+      decksRenamed: decksRenamed,
+    );
+  }
+
+  Future<ImportResult> importData(
+    List<DeckGroup> importedGroups,
+    List<Deck> importedDecks, {
+    required ConflictResolution Function(String deckName, String? groupId)
+    onConflict,
+    Map<String, String>? oldToNewGroupId,
+  }) async {
+    oldToNewGroupId ??= {};
+    int groupsMerged = 0;
+
+    for (final importedGroup in importedGroups) {
+      if (!oldToNewGroupId.containsKey(importedGroup.id)) {
+        final existing = getGroupByName(importedGroup.name);
+        if (existing != null) {
+          oldToNewGroupId[importedGroup.id] = existing.id;
+          groupsMerged++;
+        } else {
+          final newId = _id();
+          oldToNewGroupId[importedGroup.id] = newId;
+          groups.add(DeckGroup(id: newId, name: importedGroup.name));
+        }
       }
     }
 

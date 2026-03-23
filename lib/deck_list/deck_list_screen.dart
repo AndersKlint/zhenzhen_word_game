@@ -371,43 +371,47 @@ class _DeckListScreenState extends State<DeckListScreen> {
       dialogTitle: l10n.import_title,
       allowMultiple: false,
       type: FileType.custom,
-      allowedExtensions: ['json'],
+      allowedExtensions: ['json', 'csv'],
       withData: true,
     );
 
     if (result == null || result.files.isEmpty) return;
 
     final file = result.files.first;
-    String json;
-
-    if (kIsWeb) {
-      json = utf8.decode(file.bytes!);
-    } else {
-      json = await File(file.path!).readAsString();
-    }
+    final content = kIsWeb
+        ? utf8.decode(file.bytes ?? Uint8List(0))
+        : await File(file.path!).readAsString();
 
     try {
-      final data = jsonDecode(json) as Map<String, dynamic>;
+      List<DeckGroup> importedGroups;
+      List<Deck> importedDecks;
 
-      final importedGroups =
-          (data['groups'] as List?)
-              ?.map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          [];
+      if (file.extension == 'csv') {
+        final parsed = getIt<DeckService>().parseLaoziCsv(
+          content,
+          file.name.replaceAll(RegExp(r'\.csv$', caseSensitive: false), ''),
+        );
+        importedGroups = parsed.groups;
+        importedDecks = parsed.decks;
+      } else {
+        final data = jsonDecode(content) as Map<String, dynamic>;
+        importedGroups =
+            (data['groups'] as List?)
+                ?.map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
+                .toList() ??
+            [];
+        importedDecks = (data['decks'] as List)
+            .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
 
       final oldToNewGroupId = <String, String>{};
       for (final group in importedGroups) {
         final existing = getIt<DeckService>().getGroupByName(group.name);
         if (existing != null) {
           oldToNewGroupId[group.id] = existing.id;
-        } else {
-          oldToNewGroupId[group.id] = group.id;
         }
       }
-
-      final importedDecks = (data['decks'] as List)
-          .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
 
       final conflicts = <(Deck, String?)>[];
       for (final deck in importedDecks) {
@@ -424,15 +428,23 @@ class _DeckListScreenState extends State<DeckListScreen> {
       }
 
       if (conflicts.isEmpty) {
-        final importResult = await _controller.importCollection(
-          json,
+        final importResult = await _controller.importData(
+          importedGroups,
+          importedDecks,
           onConflict: (_, __) => ConflictResolution.skip,
+          oldToNewGroupId: oldToNewGroupId,
         );
         if (mounted && importResult != null) {
           _showImportResult(importResult, l10n);
         }
       } else {
-        await _showConflictResolutionDialog(json, conflicts, l10n);
+        await _showConflictResolutionDialog(
+          importedGroups,
+          importedDecks,
+          oldToNewGroupId,
+          conflicts,
+          l10n,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -444,7 +456,9 @@ class _DeckListScreenState extends State<DeckListScreen> {
   }
 
   Future<void> _showConflictResolutionDialog(
-    String json,
+    List<DeckGroup> importedGroups,
+    List<Deck> importedDecks,
+    Map<String, String> oldToNewGroupId,
     List<(Deck, String?)> conflicts,
     AppLocalizations l10n,
   ) async {
@@ -467,10 +481,12 @@ class _DeckListScreenState extends State<DeckListScreen> {
         );
 
     if (resolutions != null) {
-      final importResult = await _controller.importCollection(
-        json,
+      final importResult = await _controller.importData(
+        importedGroups,
+        importedDecks,
         onConflict: (deckName, groupId) =>
             resolutions[(deckName, groupId)] ?? ConflictResolution.skip,
+        oldToNewGroupId: oldToNewGroupId,
       );
       if (mounted && importResult != null) {
         _showImportResult(importResult, l10n);
