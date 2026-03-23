@@ -356,7 +356,8 @@ class _DeckListScreenState extends State<DeckListScreen> {
       fileName: 'zhenzhen_flashcard_collection.json',
     );
     if (outputPath != null) {
-      final file = File(outputPath);
+      final filePath = ensureJsonExtension(outputPath);
+      final file = File(filePath);
       await file.writeAsString(json);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

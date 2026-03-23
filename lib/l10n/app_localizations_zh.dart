@@ -98,7 +98,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get import_title => '导入收藏';
+  String get import_title => '导入';
 
   @override
   String import_failed(String error) {

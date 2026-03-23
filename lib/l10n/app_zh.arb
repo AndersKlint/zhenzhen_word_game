@@ -35,7 +35,7 @@
   "export_button": "导出",
   "export_success": "已导出 {count} 个词库",
 
-  "import_title": "导入收藏",
+  "import_title": "导入",
   "import_failed": "导入失败：{error}",
   "import_processing": "处理中...",
 

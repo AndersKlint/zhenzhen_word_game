@@ -136,7 +136,7 @@
     }
   },
 
-  "import_title": "Import Collection",
+  "import_title": "Import",
   "@import_title": {
     "description": "Title for import dialog"
   },

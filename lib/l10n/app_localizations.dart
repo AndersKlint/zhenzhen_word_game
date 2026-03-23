@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// Title for import dialog
   ///
   /// In en, this message translates to:
-  /// **'Import Collection'**
+  /// **'Import'**
   String get import_title;
 
   /// Error message for failed import

@@ -205,7 +205,7 @@ class DeckService extends ChangeNotifier {
 
     final exportedDecks = selectedDecks.map((d) => d.toJson()).toList();
 
-    return jsonEncode({
+    return const JsonEncoder.withIndent('  ').convert({
       'version': 1,
       'exportedAt': DateTime.now().toIso8601String(),
       'groups': exportedGroups,

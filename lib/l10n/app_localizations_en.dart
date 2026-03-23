@@ -104,7 +104,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get import_title => 'Import Collection';
+  String get import_title => 'Import';
 
   @override
   String import_failed(String error) {
