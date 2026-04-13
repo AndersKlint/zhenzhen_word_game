@@ -177,7 +177,8 @@ class _DeckListScreenState extends State<DeckListScreen> {
           dropToUngroupText: l10n.deckList_dropToUngroup,
           onEditDeck: (deck) => _navigateToDeckEditor(deck.id),
           onDeleteDeck: (deck) => _deleteDeck(deck, l10n),
-          onPlayDeck: (deck) => _navigateToGameSelection(preselectedDeck: deck),
+          onPlayDeck: (deck) =>
+              _navigateToGameSelection(preselectedDecks: [deck]),
           theme: theme,
         ),
         for (final group in groups) ...[_buildGroupSection(group, l10n, theme)],
@@ -228,7 +229,8 @@ class _DeckListScreenState extends State<DeckListScreen> {
                 deck: deck,
                 onEdit: () => _navigateToDeckEditor(deck.id),
                 onDelete: () => _deleteDeck(deck, l10n),
-                onPlay: () => _navigateToGameSelection(preselectedDeck: deck),
+                onPlay: () =>
+                    _navigateToGameSelection(preselectedDecks: [deck]),
                 cardCountText: l10n.deckList_cards(deck.words.length),
                 theme: theme,
               ),
@@ -240,15 +242,15 @@ class _DeckListScreenState extends State<DeckListScreen> {
 
   Future<void> _createDeck(AppLocalizations l10n) async {
     final name = await _ask(context, l10n.dialog_deckName);
-    if (name != null && name.trim().isNotEmpty) {
-      await _controller.createDeck(name.trim());
+    if (name != null) {
+      await _controller.createDeck(name);
     }
   }
 
   Future<void> _createGroup(AppLocalizations l10n) async {
     final name = await _ask(context, l10n.dialog_groupName);
-    if (name != null && name.trim().isNotEmpty) {
-      await _controller.createGroup(name.trim());
+    if (name != null) {
+      await _controller.createGroup(name);
     }
   }
 
@@ -258,8 +260,8 @@ class _DeckListScreenState extends State<DeckListScreen> {
       l10n.dialog_newName,
       initialValue: group.name,
     );
-    if (name != null && name.trim().isNotEmpty) {
-      await _controller.renameGroup(group.id, name.trim());
+    if (name != null) {
+      await _controller.renameGroup(group.id, name);
     }
   }
 
@@ -294,8 +296,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
   }
 
   void _playGroup(DeckGroup group, List<Deck> decks) {
-    final combinedDeck = _controller.createCombinedDeck(group, decks);
-    _navigateToGameSelection(preselectedDeck: combinedDeck);
+    _navigateToGameSelection(preselectedDecks: decks);
   }
 
   void _navigateToDeckEditor(String deckId) {
@@ -305,12 +306,12 @@ class _DeckListScreenState extends State<DeckListScreen> {
     );
   }
 
-  void _navigateToGameSelection({Deck? preselectedDeck}) {
+  void _navigateToGameSelection({List<Deck> preselectedDecks = const []}) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => GameSelectionScreen(
-          preselectedDeck: preselectedDeck,
+          preselectedDecks: preselectedDecks,
           theme: _themeService.theme,
         ),
       ),
@@ -379,73 +380,30 @@ class _DeckListScreenState extends State<DeckListScreen> {
     if (result == null || result.files.isEmpty) return;
 
     final file = result.files.first;
+    final extension = (file.extension ?? '').toLowerCase();
     final content = kIsWeb
         ? utf8.decode(file.bytes ?? Uint8List(0))
         : await File(file.path!).readAsString();
 
     try {
-      List<DeckGroup> importedGroups;
-      List<Deck> importedDecks;
+      final preparedImport = _controller.prepareImport(
+        content,
+        filename: file.name,
+        extension: extension,
+      );
 
-      if (file.extension == 'csv') {
-        final parsed = getIt<DeckService>().parseLaoziCsv(
-          content,
-          file.name.replaceAll(RegExp(r'\.csv$', caseSensitive: false), ''),
-        );
-        importedGroups = parsed.groups;
-        importedDecks = parsed.decks;
-      } else {
-        final data = jsonDecode(content) as Map<String, dynamic>;
-        importedGroups =
-            (data['groups'] as List?)
-                ?.map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
-                .toList() ??
-            [];
-        importedDecks = (data['decks'] as List)
-            .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
-            .toList();
-      }
-
-      final oldToNewGroupId = <String, String>{};
-      for (final group in importedGroups) {
-        final existing = getIt<DeckService>().getGroupByName(group.name);
-        if (existing != null) {
-          oldToNewGroupId[group.id] = existing.id;
-        }
-      }
-
-      final conflicts = <(Deck, String?)>[];
-      for (final deck in importedDecks) {
-        final newGroupId = deck.groupId != null
-            ? oldToNewGroupId[deck.groupId]
-            : null;
-        if (getIt<DeckService>().getDeckByName(
-              deck.name,
-              groupId: newGroupId,
-            ) !=
-            null) {
-          conflicts.add((deck, newGroupId));
-        }
-      }
-
-      if (conflicts.isEmpty) {
+      if (!preparedImport.hasConflicts) {
         final importResult = await _controller.importData(
-          importedGroups,
-          importedDecks,
+          preparedImport.importedGroups,
+          preparedImport.importedDecks,
           onConflict: (_, __) => ConflictResolution.skip,
-          oldToNewGroupId: oldToNewGroupId,
+          oldToNewGroupId: preparedImport.oldToNewGroupId,
         );
-        if (mounted && importResult != null) {
+        if (mounted) {
           _showImportResult(importResult, l10n);
         }
       } else {
-        await _showConflictResolutionDialog(
-          importedGroups,
-          importedDecks,
-          oldToNewGroupId,
-          conflicts,
-          l10n,
-        );
+        await _showConflictResolutionDialog(preparedImport, l10n);
       }
     } catch (e) {
       if (mounted) {
@@ -457,10 +415,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
   }
 
   Future<void> _showConflictResolutionDialog(
-    List<DeckGroup> importedGroups,
-    List<Deck> importedDecks,
-    Map<String, String> oldToNewGroupId,
-    List<(Deck, String?)> conflicts,
+    PreparedImportData preparedImport,
     AppLocalizations l10n,
   ) async {
     final resolutions =
@@ -468,7 +423,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
           context: context,
           barrierDismissible: false,
           builder: (ctx) => ConflictResolutionDialog(
-            conflicts: conflicts,
+            conflicts: preparedImport.conflicts,
             getGroupName: (groupId) => _controller.getGroup(groupId)?.name,
             title: l10n.conflict_title,
             messageGrouped: l10n.conflict_messageGrouped('{deck}', '{group}'),
@@ -483,13 +438,13 @@ class _DeckListScreenState extends State<DeckListScreen> {
 
     if (resolutions != null) {
       final importResult = await _controller.importData(
-        importedGroups,
-        importedDecks,
+        preparedImport.importedGroups,
+        preparedImport.importedDecks,
         onConflict: (deckName, groupId) =>
             resolutions[(deckName, groupId)] ?? ConflictResolution.skip,
-        oldToNewGroupId: oldToNewGroupId,
+        oldToNewGroupId: preparedImport.oldToNewGroupId,
       );
-      if (mounted && importResult != null) {
+      if (mounted) {
         _showImportResult(importResult, l10n);
       }
     }

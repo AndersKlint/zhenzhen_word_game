@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../deck_service.dart';
 import '../l10n/app_localizations.dart';
 import '../appbar.dart';
 import '../di.dart';
@@ -31,7 +32,10 @@ class _DeckEditorScreenState extends State<DeckEditorScreen> {
   void initState() {
     super.initState();
     _themeService = getIt<ThemeService>();
-    _controller = DeckEditorController(deckId: widget.deckId);
+    _controller = DeckEditorController(
+      deckId: widget.deckId,
+      deckService: getIt<DeckService>(),
+    );
     _controller.addListener(_onControllerChanged);
   }
 

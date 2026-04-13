@@ -7,7 +7,7 @@ class DeckGroup {
   Map<String, dynamic> toJson() => {'id': id, 'name': name};
 
   factory DeckGroup.fromJson(Map<String, dynamic> json) =>
-      DeckGroup(id: json['id'], name: json['name']);
+      DeckGroup(id: json['id'] as String, name: json['name'] as String);
 }
 
 class Deck {
@@ -28,6 +28,8 @@ class Deck {
 
   String? getBack(int index) => backs[index];
 
+  bool get hasBackText => backs.values.any((value) => value.isNotEmpty);
+
   void setBack(int index, String? value) {
     if (value == null || value.isEmpty) {
       backs.remove(index);
@@ -36,8 +38,7 @@ class Deck {
     }
   }
 
-  bool hasBack(int index) =>
-      backs.containsKey(index) && backs[index]!.isNotEmpty;
+  bool hasBack(int index) => backs[index]?.isNotEmpty ?? false;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -48,14 +49,17 @@ class Deck {
   };
 
   factory Deck.fromJson(Map<String, dynamic> json) => Deck(
-    id: json['id'],
-    name: json['name'],
-    words: List<String>.from(json['words'] ?? []),
+    id: json['id'] as String,
+    name: json['name'] as String,
+    words: List<String>.from(json['words'] as List? ?? const <String>[]),
     backs: json['backs'] != null
         ? Map<int, String>.from(
-            (json['backs'] as Map).map((k, v) => MapEntry(int.parse(k), v)),
+            (json['backs'] as Map).map(
+              (key, value) =>
+                  MapEntry(int.parse(key as String), value as String),
+            ),
           )
         : {},
-    groupId: json['groupId'],
+    groupId: json['groupId'] as String?,
   );
 }

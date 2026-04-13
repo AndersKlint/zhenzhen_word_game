@@ -20,22 +20,48 @@ class ImportResult {
   });
 }
 
+class ImportConflict {
+  final Deck deck;
+  final String? groupId;
+
+  const ImportConflict({required this.deck, required this.groupId});
+}
+
+class PreparedImportData {
+  final List<DeckGroup> importedGroups;
+  final List<Deck> importedDecks;
+  final Map<String, String> oldToNewGroupId;
+  final List<ImportConflict> conflicts;
+
+  const PreparedImportData({
+    required this.importedGroups,
+    required this.importedDecks,
+    required this.oldToNewGroupId,
+    required this.conflicts,
+  });
+
+  bool get hasConflicts => conflicts.isNotEmpty;
+}
+
 enum ConflictResolution { replace, skip, rename }
 
 class DeckService extends ChangeNotifier {
+  static const _decksKey = 'decks';
+  static const _groupsKey = 'groups';
+
   List<Deck> decks = [];
   List<DeckGroup> groups = [];
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('decks');
+    final raw = prefs.getString(_decksKey);
     if (raw != null) {
       final list = jsonDecode(raw) as List;
       decks = list
           .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
-    final groupsRaw = prefs.getString('groups');
+    final groupsRaw = prefs.getString(_groupsKey);
     if (groupsRaw != null) {
       final groupsList = jsonDecode(groupsRaw) as List;
       groups = groupsList
@@ -47,43 +73,69 @@ class DeckService extends ChangeNotifier {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      'decks',
+      _decksKey,
       jsonEncode(decks.map((d) => d.toJson()).toList()),
     );
     await prefs.setString(
-      'groups',
+      _groupsKey,
       jsonEncode(groups.map((g) => g.toJson()).toList()),
     );
+  }
+
+  Future<void> _saveAndNotify() async {
+    await _save();
+    notifyListeners();
   }
 
   String _id() =>
       DateTime.now().millisecondsSinceEpoch.toString() +
       Random().nextInt(999).toString();
 
+  Deck? _findDeckById(String id) {
+    for (final deck in decks) {
+      if (deck.id == id) {
+        return deck;
+      }
+    }
+    return null;
+  }
+
+  DeckGroup? _findGroupById(String id) {
+    for (final group in groups) {
+      if (group.id == id) {
+        return group;
+      }
+    }
+    return null;
+  }
+
+  Deck _requireDeck(String id) =>
+      _findDeckById(id) ?? (throw StateError('Deck not found: $id'));
+
+  DeckGroup _requireGroup(String id) =>
+      _findGroupById(id) ?? (throw StateError('Group not found: $id'));
+
   Future<void> addDeck(String name, {String? groupId}) async {
     decks.add(Deck(id: _id(), name: name, groupId: groupId));
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> removeDeck(String id) async {
     decks.removeWhere((d) => d.id == id);
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> addWord(String deckId, String word, {String? back}) async {
-    final deck = decks.firstWhere((d) => d.id == deckId);
+    final deck = _requireDeck(deckId);
     deck.words.add(word);
     if (back != null && back.isNotEmpty) {
       deck.setBack(deck.words.length - 1, back);
     }
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> removeWord(String deckId, int idx) async {
-    final deck = decks.firstWhere((d) => d.id == deckId);
+    final deck = _requireDeck(deckId);
     deck.words.removeAt(idx);
     final newBacks = <int, String>{};
     for (final entry in deck.backs.entries) {
@@ -94,28 +146,24 @@ class DeckService extends ChangeNotifier {
       }
     }
     deck.backs = newBacks;
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> updateBack(String deckId, int idx, String? back) async {
-    final deck = decks.firstWhere((d) => d.id == deckId);
+    final deck = _requireDeck(deckId);
     deck.setBack(idx, back);
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> updateWord(String deckId, int idx, String word) async {
-    final deck = decks.firstWhere((d) => d.id == deckId);
+    final deck = _requireDeck(deckId);
     deck.words[idx] = word;
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> addGroup(String name) async {
     groups.add(DeckGroup(id: _id(), name: name));
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> removeGroup(String id) async {
@@ -125,22 +173,19 @@ class DeckService extends ChangeNotifier {
         deck.groupId = null;
       }
     }
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> renameGroup(String id, String newName) async {
-    final group = groups.firstWhere((g) => g.id == id);
+    final group = _requireGroup(id);
     group.name = newName;
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   Future<void> assignDeckToGroup(String deckId, String? groupId) async {
-    final deck = decks.firstWhere((d) => d.id == deckId);
+    final deck = _requireDeck(deckId);
     deck.groupId = groupId;
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
   }
 
   List<Deck> getGroupDecks(String groupId) =>
@@ -149,30 +194,26 @@ class DeckService extends ChangeNotifier {
   List<Deck> getUngroupedDecks() =>
       decks.where((d) => d.groupId == null).toList();
 
-  Deck getDeck(String id) => decks.firstWhere((d) => d.id == id);
+  Deck getDeck(String id) => _requireDeck(id);
 
-  DeckGroup? getGroup(String id) {
-    try {
-      return groups.firstWhere((g) => g.id == id);
-    } catch (_) {
-      return null;
-    }
-  }
+  DeckGroup? getGroup(String id) => _findGroupById(id);
 
   DeckGroup? getGroupByName(String name) {
-    try {
-      return groups.firstWhere((g) => g.name == name);
-    } catch (_) {
-      return null;
+    for (final group in groups) {
+      if (group.name == name) {
+        return group;
+      }
     }
+    return null;
   }
 
   Deck? getDeckByName(String name, {String? groupId}) {
-    try {
-      return decks.firstWhere((d) => d.name == name && d.groupId == groupId);
-    } catch (_) {
-      return null;
+    for (final deck in decks) {
+      if (deck.name == name && deck.groupId == groupId) {
+        return deck;
+      }
     }
+    return null;
   }
 
   String _findAvailableName(String baseName, {String? groupId}) {
@@ -211,6 +252,81 @@ class DeckService extends ChangeNotifier {
       'groups': exportedGroups,
       'decks': exportedDecks,
     });
+  }
+
+  PreparedImportData prepareImport(
+    String content, {
+    required String filename,
+    required String extension,
+  }) {
+    final importedData = switch (extension.toLowerCase()) {
+      'csv' => parseLaoziCsv(
+        content,
+        filename.replaceAll(RegExp(r'\.csv$', caseSensitive: false), ''),
+      ),
+      _ => _parseImportedJson(content),
+    };
+    final oldToNewGroupId = _mapExistingGroupIds(importedData.groups);
+
+    return PreparedImportData(
+      importedGroups: importedData.groups,
+      importedDecks: importedData.decks,
+      oldToNewGroupId: oldToNewGroupId,
+      conflicts: _findImportConflicts(importedData.decks, oldToNewGroupId),
+    );
+  }
+
+  ({List<DeckGroup> groups, List<Deck> decks}) _parseImportedJson(String json) {
+    final data = jsonDecode(json) as Map<String, dynamic>;
+    final importedGroups =
+        (data['groups'] as List?)
+            ?.map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        [];
+    final importedDecks = (data['decks'] as List)
+        .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+
+    return (groups: importedGroups, decks: importedDecks);
+  }
+
+  ({List<DeckGroup> groups, List<Deck> decks}) _parseExportedCollection(
+    String json,
+  ) {
+    final data = jsonDecode(json) as Map<String, dynamic>;
+    final version = data['version'] as int?;
+    if (version != 1) {
+      throw FormatException('Unsupported export version: $version');
+    }
+
+    return _parseImportedJson(json);
+  }
+
+  Map<String, String> _mapExistingGroupIds(List<DeckGroup> importedGroups) {
+    final oldToNewGroupId = <String, String>{};
+    for (final importedGroup in importedGroups) {
+      final existing = getGroupByName(importedGroup.name);
+      if (existing != null) {
+        oldToNewGroupId[importedGroup.id] = existing.id;
+      }
+    }
+    return oldToNewGroupId;
+  }
+
+  List<ImportConflict> _findImportConflicts(
+    List<Deck> importedDecks,
+    Map<String, String> oldToNewGroupId,
+  ) {
+    final conflicts = <ImportConflict>[];
+    for (final deck in importedDecks) {
+      final newGroupId = deck.groupId != null
+          ? oldToNewGroupId[deck.groupId]
+          : null;
+      if (getDeckByName(deck.name, groupId: newGroupId) != null) {
+        conflicts.add(ImportConflict(deck: deck, groupId: newGroupId));
+      }
+    }
+    return conflicts;
   }
 
   List<String> _splitTabSeparatedWithQuotes(String line) {
@@ -401,85 +517,11 @@ class DeckService extends ChangeNotifier {
     required ConflictResolution Function(String deckName, String? groupId)
     onConflict,
   }) async {
-    final data = jsonDecode(json) as Map<String, dynamic>;
-    final version = data['version'] as int?;
-    if (version != 1) {
-      throw FormatException('Unsupported export version: $version');
-    }
-
-    final importedGroups = (data['groups'] as List)
-        .map((e) => DeckGroup.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
-    final importedDecks = (data['decks'] as List)
-        .map((e) => Deck.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
-
-    final oldToNewGroupId = <String, String>{};
-    int groupsMerged = 0;
-
-    for (final importedGroup in importedGroups) {
-      final existing = getGroupByName(importedGroup.name);
-      if (existing != null) {
-        oldToNewGroupId[importedGroup.id] = existing.id;
-        groupsMerged++;
-      } else {
-        final newId = _id();
-        oldToNewGroupId[importedGroup.id] = newId;
-        groups.add(DeckGroup(id: newId, name: importedGroup.name));
-      }
-    }
-
-    int decksImported = 0;
-    int decksSkipped = 0;
-    int decksReplaced = 0;
-    int decksRenamed = 0;
-
-    for (final importedDeck in importedDecks) {
-      final newGroupId = importedDeck.groupId != null
-          ? oldToNewGroupId[importedDeck.groupId]
-          : null;
-
-      final existing = getDeckByName(importedDeck.name, groupId: newGroupId);
-
-      String deckName = importedDeck.name;
-
-      if (existing != null) {
-        final resolution = onConflict(importedDeck.name, newGroupId);
-        if (resolution == ConflictResolution.skip) {
-          decksSkipped++;
-          continue;
-        } else if (resolution == ConflictResolution.replace) {
-          decks.remove(existing);
-          decksReplaced++;
-        } else if (resolution == ConflictResolution.rename) {
-          deckName = _findAvailableName(importedDeck.name, groupId: newGroupId);
-          decksRenamed++;
-        }
-      }
-
-      final newId = _id();
-
-      decks.add(
-        Deck(
-          id: newId,
-          name: deckName,
-          words: importedDeck.words,
-          backs: importedDeck.backs,
-          groupId: newGroupId,
-        ),
-      );
-      decksImported++;
-    }
-
-    await _save();
-    notifyListeners();
-
-    return ImportResult(
-      decksImported: decksImported,
-      decksSkipped: decksSkipped,
-      decksReplaced: decksReplaced,
-      groupsMerged: groupsMerged,
-      decksRenamed: decksRenamed,
+    final importedData = _parseExportedCollection(json);
+    return importData(
+      importedData.groups,
+      importedData.decks,
+      onConflict: onConflict,
     );
   }
 
@@ -541,16 +583,15 @@ class DeckService extends ChangeNotifier {
         Deck(
           id: newId,
           name: deckName,
-          words: importedDeck.words,
-          backs: importedDeck.backs,
+          words: List<String>.from(importedDeck.words),
+          backs: Map<int, String>.from(importedDeck.backs),
           groupId: newGroupId,
         ),
       );
       decksImported++;
     }
 
-    await _save();
-    notifyListeners();
+    await _saveAndNotify();
 
     return ImportResult(
       decksImported: decksImported,

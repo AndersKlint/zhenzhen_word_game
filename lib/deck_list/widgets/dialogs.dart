@@ -128,7 +128,7 @@ class _ExportDialogState extends State<ExportDialog> {
 }
 
 class ConflictResolutionDialog extends StatefulWidget {
-  final List<(Deck, String?)> conflicts;
+  final List<ImportConflict> conflicts;
   final String? Function(String groupId) getGroupName;
   final String title;
   final String messageGrouped;
@@ -169,9 +169,9 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
       return AlertDialog(content: Text('Processing...'));
     }
 
-    final (conflict, groupId) = widget.conflicts[_currentIndex];
-    final groupName = groupId != null
-        ? widget.getGroupName(groupId) ?? 'Unknown Group'
+    final conflict = widget.conflicts[_currentIndex];
+    final groupName = conflict.groupId != null
+        ? widget.getGroupName(conflict.groupId!) ?? 'Unknown Group'
         : null;
 
     return AlertDialog(
@@ -183,9 +183,12 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
           Text(
             groupName != null
                 ? widget.messageGrouped
-                      .replaceAll('{deck}', conflict.name)
+                      .replaceAll('{deck}', conflict.deck.name)
                       .replaceAll('{group}', groupName)
-                : widget.messageUngrouped.replaceAll('{deck}', conflict.name),
+                : widget.messageUngrouped.replaceAll(
+                    '{deck}',
+                    conflict.deck.name,
+                  ),
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
@@ -225,13 +228,13 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
 
   void _handleResolution(ConflictResolution resolution) {
     if (_applyToAll) {
-      for (final (c, g) in widget.conflicts.sublist(_currentIndex)) {
-        _resolutions[(c.name, g)] = resolution;
+      for (final conflict in widget.conflicts.sublist(_currentIndex)) {
+        _resolutions[(conflict.deck.name, conflict.groupId)] = resolution;
       }
       Navigator.pop(context, _resolutions);
     } else {
-      final (conflict, groupId) = widget.conflicts[_currentIndex];
-      _resolutions[(conflict.name, groupId)] = resolution;
+      final conflict = widget.conflicts[_currentIndex];
+      _resolutions[(conflict.deck.name, conflict.groupId)] = resolution;
       _currentIndex++;
       if (_currentIndex >= widget.conflicts.length) {
         Navigator.pop(context, _resolutions);

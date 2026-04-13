@@ -64,8 +64,8 @@ class DeckListController extends ChangeNotifier {
     await _deckService.removeDeck(deckId);
   }
 
-  void toggleLocale() {
-    _localeService.toggleLocale();
+  Future<void> toggleLocale() async {
+    await _localeService.toggleLocale();
   }
 
   bool get isEnglish => _localeService.isEnglish;
@@ -103,7 +103,19 @@ class DeckListController extends ChangeNotifier {
     return _deckService.exportCollection(selectedDecks);
   }
 
-  Future<ImportResult?> importCollection(
+  PreparedImportData prepareImport(
+    String content, {
+    required String filename,
+    required String extension,
+  }) {
+    return _deckService.prepareImport(
+      content,
+      filename: filename,
+      extension: extension,
+    );
+  }
+
+  Future<ImportResult> importCollection(
     String json, {
     required ConflictResolution Function(String deckName, String? groupId)
     onConflict,
@@ -111,7 +123,7 @@ class DeckListController extends ChangeNotifier {
     return await _deckService.importCollection(json, onConflict: onConflict);
   }
 
-  Future<ImportResult?> importData(
+  Future<ImportResult> importData(
     List<DeckGroup> importedGroups,
     List<Deck> importedDecks, {
     required ConflictResolution Function(String deckName, String? groupId)

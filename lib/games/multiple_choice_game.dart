@@ -147,7 +147,6 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final totalQuestions = _cardIndices.length;
 
     return Scaffold(
@@ -273,7 +272,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -322,7 +321,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                 } else if (isSelected) {
                   bgColor = Colors.blue.shade300;
                 } else {
-                  bgColor = Colors.white.withOpacity(0.9);
+                  bgColor = Colors.white.withValues(alpha: 0.9);
                 }
 
                 return Padding(
@@ -343,7 +342,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),

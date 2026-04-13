@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../deck_service.dart';
+import '../di.dart';
 import '../l10n/app_localizations.dart';
 import '../appbar.dart';
 import '../models.dart';
@@ -13,28 +15,46 @@ import 'game_selection_controller.dart';
 import 'widgets/game_card.dart';
 import 'widgets/dialogs.dart';
 
-class GameSelectionScreen extends StatelessWidget {
-  final Deck? preselectedDeck;
+class GameSelectionScreen extends StatefulWidget {
+  final List<Deck> preselectedDecks;
   final AppTheme theme;
 
   const GameSelectionScreen({
     super.key,
-    this.preselectedDeck,
+    this.preselectedDecks = const [],
     required this.theme,
   });
 
   @override
+  State<GameSelectionScreen> createState() => _GameSelectionScreenState();
+}
+
+class _GameSelectionScreenState extends State<GameSelectionScreen> {
+  late final GameSelectionController _controller;
+  late final List<Deck> _selectedDecks;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = GameSelectionController(deckService: getIt<DeckService>());
+    _selectedDecks = List.of(widget.preselectedDecks);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final controller = GameSelectionController();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildAppBar(context, l10n.gameSelection_title, theme: theme),
+      appBar: buildAppBar(
+        context,
+        l10n.gameSelection_title,
+        theme: widget.theme,
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(gradient: theme.backgroundGradient),
+        decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 24),
@@ -44,32 +64,35 @@ class GameSelectionScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    preselectedDeck != null
-                        ? l10n.gameSelection_playing(preselectedDeck!.name)
-                        : l10n.gameSelection_selectMode,
+                    l10n.gameSelection_selectMode,
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: theme.primaryTextColor,
+                      color: widget.theme.primaryTextColor,
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildSelectedDecksPanel(context, l10n),
+                ),
+                const SizedBox(height: 24),
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     children: [
-                      _buildRecallFrontCard(context, l10n, controller),
+                      _buildRecallFrontCard(context, l10n, _controller),
                       const SizedBox(height: 24),
-                      _buildRecallBothCard(context, l10n, controller),
+                      _buildRecallBothCard(context, l10n, _controller),
                       const SizedBox(height: 24),
-                      _buildRandomMultiCard(context, l10n, controller),
+                      _buildRandomMultiCard(context, l10n, _controller),
                       const SizedBox(height: 24),
-                      _buildReverseRecallCard(context, l10n, controller),
+                      _buildReverseRecallCard(context, l10n, _controller),
                       const SizedBox(height: 24),
-                      _buildMultipleChoiceCard(context, l10n, controller),
+                      _buildMultipleChoiceCard(context, l10n, _controller),
                       const SizedBox(height: 24),
-                      _buildMemoryMatchCard(context, l10n, controller),
+                      _buildMemoryMatchCard(context, l10n, _controller),
                     ],
                   ),
                 ),
@@ -77,6 +100,118 @@ class GameSelectionScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedDecksPanel(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: widget.theme.groupHeaderColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: widget.theme.groupHeaderBorderColor.withValues(alpha: 0.35),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: widget.theme.cardShadowColor,
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.gameSelection_selectedDecks,
+                  style: TextStyle(
+                    color: widget.theme.primaryTextColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              FilledButton(
+                onPressed: () => _addDecks(context, l10n),
+                style: FilledButton.styleFrom(
+                  backgroundColor: widget.theme.buttonColor,
+                  foregroundColor: widget.theme.buttonTextColor,
+                  minimumSize: const Size(44, 44),
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: const Icon(Icons.add),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_selectedDecks.isEmpty)
+            Text(
+              l10n.gameSelection_addDecksHint,
+              style: TextStyle(
+                color: widget.theme.secondaryTextColor,
+                fontSize: 14,
+              ),
+            )
+          else
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                for (final deck in _selectedDecks) _buildDeckChip(deck),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeckChip(Deck deck) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: const EdgeInsets.only(left: 14, right: 8, top: 6, bottom: 6),
+      decoration: BoxDecoration(
+        gradient: widget.theme.cardGradient,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: widget.theme.groupHeaderBorderColor.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              deck.name,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: widget.theme.primaryTextColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: () => _removeDeck(deck),
+            borderRadius: BorderRadius.circular(999),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(
+                Icons.close,
+                size: 18,
+                color: widget.theme.secondaryTextColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -89,9 +224,9 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_recallFront_title,
       description: l10n.game_recallFront_desc,
-      gradient: theme.cardGradientAtIndex(0),
+      gradient: widget.theme.cardGradientAtIndex(0),
       onTap: () => _handleRecallFront(context, l10n, controller),
-      theme: theme,
+      theme: widget.theme,
     );
   }
 
@@ -100,16 +235,12 @@ class GameSelectionScreen extends StatelessWidget {
     AppLocalizations l10n,
     GameSelectionController controller,
   ) async {
-    final deck =
-        preselectedDeck ?? await _chooseDeck(context, l10n, controller);
-    if (deck != null && context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => RecallWordGame(deck: deck, theme: theme),
-        ),
-      );
-    }
+    await _openSingleDeckGame(
+      context,
+      l10n,
+      controller,
+      builder: (deck) => RecallWordGame(deck: deck, theme: widget.theme),
+    );
   }
 
   Widget _buildRecallBothCard(
@@ -120,9 +251,9 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_recallBoth_title,
       description: l10n.game_recallBoth_desc,
-      gradient: theme.cardGradientAtIndex(4),
+      gradient: widget.theme.cardGradientAtIndex(4),
       onTap: () => _handleRecallBoth(context, l10n, controller),
-      theme: theme,
+      theme: widget.theme,
     );
   }
 
@@ -131,16 +262,12 @@ class GameSelectionScreen extends StatelessWidget {
     AppLocalizations l10n,
     GameSelectionController controller,
   ) async {
-    final deck =
-        preselectedDeck ?? await _chooseDeck(context, l10n, controller);
-    if (deck != null && context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => FlipCardGame(deck: deck, theme: theme),
-        ),
-      );
-    }
+    await _openSingleDeckGame(
+      context,
+      l10n,
+      controller,
+      builder: (deck) => FlipCardGame(deck: deck, theme: widget.theme),
+    );
   }
 
   Widget _buildRandomMultiCard(
@@ -151,9 +278,9 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_randomMulti_title,
       description: l10n.game_randomMulti_desc,
-      gradient: theme.cardGradientAtIndex(8),
+      gradient: widget.theme.cardGradientAtIndex(8),
       onTap: () => _handleRandomMulti(context, l10n, controller),
-      theme: theme,
+      theme: widget.theme,
     );
   }
 
@@ -162,16 +289,10 @@ class GameSelectionScreen extends StatelessWidget {
     AppLocalizations l10n,
     GameSelectionController controller,
   ) async {
-    final initialSelection = preselectedDeck != null
-        ? {preselectedDeck!}
-        : <Deck>{};
-    final decks = await _chooseMultiple(
-      context,
-      l10n,
-      controller,
-      initialSelection,
-    );
-    if (decks.isEmpty) return;
+    if (_selectedDecks.length < 2) {
+      await _showNeedsMoreDecksDialog(context, l10n);
+      return;
+    }
 
     final repeat = await _askRepeat(context, l10n);
     if (!context.mounted) return;
@@ -179,8 +300,11 @@ class GameSelectionScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            RandomWordGame(decks: decks, repeat: repeat, theme: theme),
+        builder: (_) => RandomWordGame(
+          decks: List.of(_selectedDecks),
+          repeat: repeat,
+          theme: widget.theme,
+        ),
       ),
     );
   }
@@ -193,9 +317,9 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_reverseRecall_title,
       description: l10n.game_reverseRecall_desc,
-      gradient: theme.cardGradientAtIndex(12),
+      gradient: widget.theme.cardGradientAtIndex(12),
       onTap: () => _handleReverseRecall(context, l10n, controller),
-      theme: theme,
+      theme: widget.theme,
     );
   }
 
@@ -204,27 +328,13 @@ class GameSelectionScreen extends StatelessWidget {
     AppLocalizations l10n,
     GameSelectionController controller,
   ) async {
-    final deck =
-        preselectedDeck ?? await _chooseDeck(context, l10n, controller);
-    if (deck == null) return;
-
-    if (deck.backs.isEmpty) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.common_noBackText)));
-      }
-      return;
-    }
-
-    if (context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ReverseRecallGame(deck: deck, theme: theme),
-        ),
-      );
-    }
+    await _openSingleDeckGame(
+      context,
+      l10n,
+      controller,
+      requiresBackText: true,
+      builder: (deck) => ReverseRecallGame(deck: deck, theme: widget.theme),
+    );
   }
 
   Widget _buildMultipleChoiceCard(
@@ -235,9 +345,9 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_multipleChoice_title,
       description: l10n.game_multipleChoice_desc,
-      gradient: theme.cardGradientAtIndex(16),
+      gradient: widget.theme.cardGradientAtIndex(16),
       onTap: () => _handleMultipleChoice(context, l10n, controller),
-      theme: theme,
+      theme: widget.theme,
     );
   }
 
@@ -246,27 +356,13 @@ class GameSelectionScreen extends StatelessWidget {
     AppLocalizations l10n,
     GameSelectionController controller,
   ) async {
-    final deck =
-        preselectedDeck ?? await _chooseDeck(context, l10n, controller);
-    if (deck == null) return;
-
-    if (deck.backs.isEmpty) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.common_noBackText)));
-      }
-      return;
-    }
-
-    if (context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MultipleChoiceGame(deck: deck, theme: theme),
-        ),
-      );
-    }
+    await _openSingleDeckGame(
+      context,
+      l10n,
+      controller,
+      requiresBackText: true,
+      builder: (deck) => MultipleChoiceGame(deck: deck, theme: widget.theme),
+    );
   }
 
   Widget _buildMemoryMatchCard(
@@ -277,9 +373,9 @@ class GameSelectionScreen extends StatelessWidget {
     return GameCard(
       title: l10n.game_memoryMatch_title,
       description: l10n.game_memoryMatch_desc,
-      gradient: theme.cardGradientAtIndex(20),
+      gradient: widget.theme.cardGradientAtIndex(20),
       onTap: () => _handleMemoryMatch(context, l10n, controller),
-      theme: theme,
+      theme: widget.theme,
     );
   }
 
@@ -288,44 +384,40 @@ class GameSelectionScreen extends StatelessWidget {
     AppLocalizations l10n,
     GameSelectionController controller,
   ) async {
-    final deck =
-        preselectedDeck ?? await _chooseDeck(context, l10n, controller);
-    if (deck == null) return;
+    await _openSingleDeckGame(
+      context,
+      l10n,
+      controller,
+      requiresBackText: true,
+      builder: (deck) => MemoryMatchGame(deck: deck, theme: widget.theme),
+    );
+  }
 
-    if (deck.backs.isEmpty) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.common_noBackText)));
-      }
+  Future<void> _openSingleDeckGame(
+    BuildContext context,
+    AppLocalizations l10n,
+    GameSelectionController controller, {
+    required Widget Function(Deck deck) builder,
+    bool requiresBackText = false,
+  }) async {
+    if (_selectedDecks.isEmpty) {
+      await _showNeedsMoreDecksDialog(context, l10n);
       return;
     }
 
-    if (context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MemoryMatchGame(deck: deck, theme: theme),
-        ),
-      );
-    }
-  }
-
-  Future<Deck?> _chooseDeck(
-    BuildContext context,
-    AppLocalizations l10n,
-    GameSelectionController controller,
-  ) async {
-    return await showDialog<Deck>(
-      context: context,
-      builder: (ctx) => ChooseDeckDialog(
-        controller: controller,
-        title: l10n.chooseDeck_title,
-        onDeckSelected: (deck) {
-          Navigator.pop(ctx, deck);
-        },
-      ),
+    final deck = controller.mergeDecks(
+      _selectedDecks,
+      name: _sessionDeckName(l10n),
     );
+
+    if (requiresBackText && !controller.hasBackText(deck)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.common_noBackText)));
+      return;
+    }
+
+    Navigator.push(context, MaterialPageRoute(builder: (_) => builder(deck)));
   }
 
   Future<List<Deck>> _chooseMultiple(
@@ -345,6 +437,56 @@ class GameSelectionScreen extends StatelessWidget {
           ),
         ) ??
         [];
+  }
+
+  Future<void> _addDecks(BuildContext context, AppLocalizations l10n) async {
+    final decks = await _chooseMultiple(
+      context,
+      l10n,
+      _controller,
+      _selectedDecks.toSet(),
+    );
+    if (!mounted || decks.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _selectedDecks
+        ..clear()
+        ..addAll(decks);
+    });
+  }
+
+  void _removeDeck(Deck deck) {
+    setState(() {
+      _selectedDecks.removeWhere((candidate) => candidate.id == deck.id);
+    });
+  }
+
+  String _sessionDeckName(AppLocalizations l10n) {
+    if (_selectedDecks.length == 1) {
+      return _selectedDecks.first.name;
+    }
+    return l10n.game_multiDeck(_selectedDecks.length);
+  }
+
+  Future<void> _showNeedsMoreDecksDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.selectDecks_title),
+        content: Text(l10n.gameSelection_moreDecksRequired),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.dialog_ok),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<bool> _askRepeat(BuildContext context, AppLocalizations l10n) async {

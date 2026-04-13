@@ -56,6 +56,9 @@
   "gameSelection_title": "游戏",
   "gameSelection_selectMode": "选择游戏模式",
   "gameSelection_playing": "当前词库：{name}",
+  "gameSelection_selectedDecks": "已选词库",
+  "gameSelection_addDecksHint": "请先在上方添加词库再开始游戏。",
+  "gameSelection_moreDecksRequired": "这个游戏需要更多已选词库。请在上方添加更多词库后再开始。",
 
   "game_recallFront_title": "认读模式：只看正面",
   "game_recallFront_desc": "逐张卡片练习。认识请点“认识”，不熟请点“再试”。标记“再试”的卡片会反复出现，直到掌握。",

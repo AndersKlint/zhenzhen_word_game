@@ -368,6 +368,24 @@ abstract class AppLocalizations {
   /// **'Playing: {name}'**
   String gameSelection_playing(String name);
 
+  /// Label for selected decks section on game selection screen
+  ///
+  /// In en, this message translates to:
+  /// **'Selected decks'**
+  String get gameSelection_selectedDecks;
+
+  /// Hint shown when no decks are selected on game selection screen
+  ///
+  /// In en, this message translates to:
+  /// **'Add decks at the top to start playing.'**
+  String get gameSelection_addDecksHint;
+
+  /// Dialog message when a game requires more selected decks
+  ///
+  /// In en, this message translates to:
+  /// **'This game needs more selected decks. Add more at the top to play.'**
+  String get gameSelection_moreDecksRequired;
+
   /// Title for Recall Front Only game
   ///
   /// In en, this message translates to:

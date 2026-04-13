@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
 import '../deck_service.dart';
-import '../di.dart';
 import '../models.dart';
 
 class DeckEditorController extends ChangeNotifier {
   final DeckService _deckService;
   final String deckId;
 
-  DeckEditorController({required this.deckId, DeckService? deckService})
-    : _deckService = deckService ?? getIt<DeckService>() {
+  DeckEditorController({required this.deckId, required DeckService deckService})
+    : _deckService = deckService {
     _deckService.addListener(_onDeckServiceChanged);
   }
 

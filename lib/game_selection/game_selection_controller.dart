@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import '../deck_service.dart';
-import '../di.dart';
 import '../models.dart';
 
 class GameSelectionController extends ChangeNotifier {
   final DeckService _deckService;
 
-  GameSelectionController({DeckService? deckService})
-    : _deckService = deckService ?? getIt<DeckService>();
+  GameSelectionController({required DeckService deckService})
+    : _deckService = deckService;
 
   List<Deck> get ungroupedDecks => _deckService.getUngroupedDecks();
 
@@ -16,7 +15,25 @@ class GameSelectionController extends ChangeNotifier {
   List<Deck> getGroupDecks(String groupId) =>
       _deckService.getGroupDecks(groupId);
 
-  List<Deck> getAllDecks() => _deckService.decks;
+  bool hasBackText(Deck deck) => deck.hasBackText;
 
-  bool hasBackText(Deck deck) => deck.backs.isNotEmpty;
+  Deck mergeDecks(List<Deck> decks, {required String name}) {
+    final allWords = <String>[];
+    final allBacks = <int, String>{};
+
+    for (final deck in decks) {
+      final startIndex = allWords.length;
+      allWords.addAll(deck.words);
+      deck.backs.forEach((idx, back) {
+        allBacks[startIndex + idx] = back;
+      });
+    }
+
+    return Deck(
+      id: 'session_${decks.map((deck) => deck.id).join('_')}',
+      name: name,
+      words: allWords,
+      backs: allBacks,
+    );
+  }
 }

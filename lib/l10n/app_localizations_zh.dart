@@ -172,6 +172,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get gameSelection_selectedDecks => '已选词库';
+
+  @override
+  String get gameSelection_addDecksHint => '请先在上方添加词库再开始游戏。';
+
+  @override
+  String get gameSelection_moreDecksRequired => '这个游戏需要更多已选词库。请在上方添加更多词库后再开始。';
+
+  @override
   String get game_recallFront_title => '认读模式：只看正面';
 
   @override

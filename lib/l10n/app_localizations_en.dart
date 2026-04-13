@@ -178,6 +178,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get gameSelection_selectedDecks => 'Selected decks';
+
+  @override
+  String get gameSelection_addDecksHint =>
+      'Add decks at the top to start playing.';
+
+  @override
+  String get gameSelection_moreDecksRequired =>
+      'This game needs more selected decks. Add more at the top to play.';
+
+  @override
   String get game_recallFront_title => 'Recall: Front Only';
 
   @override

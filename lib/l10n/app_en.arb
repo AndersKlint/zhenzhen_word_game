@@ -264,6 +264,18 @@
       }
     }
   },
+  "gameSelection_selectedDecks": "Selected decks",
+  "@gameSelection_selectedDecks": {
+    "description": "Label for selected decks section on game selection screen"
+  },
+  "gameSelection_addDecksHint": "Add decks at the top to start playing.",
+  "@gameSelection_addDecksHint": {
+    "description": "Hint shown when no decks are selected on game selection screen"
+  },
+  "gameSelection_moreDecksRequired": "This game needs more selected decks. Add more at the top to play.",
+  "@gameSelection_moreDecksRequired": {
+    "description": "Dialog message when a game requires more selected decks"
+  },
 
   "game_recallFront_title": "Recall: Front Only",
   "@game_recallFront_title": {
