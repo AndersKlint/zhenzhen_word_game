@@ -207,8 +207,8 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
               fontSize: 60,
               fontWeight: FontWeight.bold,
               color: percentage >= 70
-                  ? Colors.green.shade600
-                  : Colors.orange.shade600,
+                  ? widget.theme.correctColor
+                  : widget.theme.accentColor,
             ),
           ),
           const SizedBox(height: 40),
@@ -315,13 +315,17 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
 
                 Color bgColor;
                 if (showResult && isCorrect) {
-                  bgColor = Colors.green.shade400;
+                  bgColor = widget.theme.correctColor;
                 } else if (showResult && isSelected && !isCorrect) {
-                  bgColor = Colors.red.shade400;
+                  bgColor = widget.theme.wrongColor;
                 } else if (isSelected) {
-                  bgColor = Colors.blue.shade300;
+                  bgColor = widget.theme.isDark
+                      ? const Color(0xFF6366F1)
+                      : Colors.blue.shade300;
                 } else {
-                  bgColor = Colors.white.withValues(alpha: 0.9);
+                  bgColor = widget.theme.isDark
+                      ? const Color(0xFF4B4B5C)
+                      : Colors.white.withValues(alpha: 0.9);
                 }
 
                 return Padding(
@@ -336,7 +340,9 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
-                              ? Colors.blue.shade700
+                              ? (widget.theme.isDark
+                                    ? const Color(0xFF818CF8)
+                                    : Colors.blue.shade700)
                               : Colors.transparent,
                           width: 2,
                         ),

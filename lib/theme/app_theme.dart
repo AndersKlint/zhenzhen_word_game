@@ -24,6 +24,9 @@ class AppTheme {
   final Color playButtonColor;
   final Color primaryTextColor;
   final Color secondaryTextColor;
+  final Color selectedGamesListItemColor;
+  final Color correctColor;
+  final Color wrongColor;
 
   const AppTheme({
     required this.name,
@@ -47,12 +50,17 @@ class AppTheme {
     required this.playButtonColor,
     required this.primaryTextColor,
     required this.secondaryTextColor,
+    required this.selectedGamesListItemColor,
+    required this.correctColor,
+    required this.wrongColor,
   });
 
   bool get isPlayful => name == 'playful';
   bool get isMinimalistic => name == 'minimalistic';
   bool get isModern => name == 'modern';
   bool get isDark => name == 'dark';
+
+  static const playfulSecondaryColor = Color.fromARGB(255, 197, 247, 255);
 
   static const AppTheme playful = AppTheme(
     name: 'playful',
@@ -67,9 +75,9 @@ class AppTheme {
       end: Alignment.bottomRight,
     ),
     primaryColor: Color(0xFF9C27B0),
-    secondaryColor: Color(0xFF00BCD4),
+    secondaryColor: playfulSecondaryColor,
     accentColor: Color(0xFFFF4081),
-    buttonColor: Color(0xFF4DD0E1),
+    buttonColor: playfulSecondaryColor,
     buttonTextColor: Color(0xDD000000),
     cardShadowColor: Color(0x26000000),
     groupHeaderColor: Color(0x99FFFFFF),
@@ -77,13 +85,16 @@ class AppTheme {
     groupHeaderBorderColor: Color(0xFFAB47BC),
     dropZoneHoverColor: Color(0x1AFF9800),
     dropZoneTextColor: Color(0xFFF57C00),
-    floatingActionButtonColor: Color(0xFF4DD0E1),
+    floatingActionButtonColor: playfulSecondaryColor,
     appBarGradientStart: Color(0xFFF8BBD0),
     appBarGradientEnd: Color(0xFF4DD0E1),
     folderIconColor: Color(0xFFAB47BC),
-    playButtonColor: Color(0xFF4DD0E1),
+    playButtonColor: playfulSecondaryColor,
     primaryTextColor: Color(0xDD000000),
     secondaryTextColor: Color(0x8A000000),
+    selectedGamesListItemColor: Color(0xFFFAFAFA),
+    correctColor: Color(0xFF4CAF50),
+    wrongColor: Color(0xFFE57373),
   );
 
   static const AppTheme minimalistic = AppTheme(
@@ -116,6 +127,9 @@ class AppTheme {
     playButtonColor: Color(0xFF007AFF),
     primaryTextColor: Color(0xFF2C2C2C),
     secondaryTextColor: Color(0xFF505050),
+    selectedGamesListItemColor: Color(0xFFFAFAFA),
+    correctColor: Color(0xFF4CAF50),
+    wrongColor: Color(0xFFEF5350),
   );
 
   static const AppTheme modern = AppTheme(
@@ -148,6 +162,9 @@ class AppTheme {
     playButtonColor: Color(0xFF8B5CF6),
     primaryTextColor: Color(0xFF1E1B4B),
     secondaryTextColor: Color(0xFF6B7280),
+    selectedGamesListItemColor: Color(0xFFFAFAFA),
+    correctColor: Color(0xFF10B981),
+    wrongColor: Color(0xFFF472B6),
   );
 
   static const AppTheme dark = AppTheme(
@@ -165,10 +182,10 @@ class AppTheme {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
-    primaryColor: Color(0xFF9333EA),
+    primaryColor: Color(0xFF7C3AED),
     secondaryColor: Color(0xFF6366F1),
     accentColor: Color(0xFFEC4899),
-    buttonColor: Color(0xFF9333EA),
+    buttonColor: Color(0xFF7C3AED),
     buttonTextColor: Color(0xFFFFFFFF),
     cardShadowColor: Color(0x40000000),
     groupHeaderColor: Color(0xFF2D2D3A),
@@ -176,13 +193,16 @@ class AppTheme {
     groupHeaderBorderColor: Color(0xFF4B4B5C),
     dropZoneHoverColor: Color(0x20EC4899),
     dropZoneTextColor: Color(0xFFEC4899),
-    floatingActionButtonColor: Color(0xFF9333EA),
+    floatingActionButtonColor: Color(0xFF7C3AED),
     appBarGradientStart: Color(0xFF1A1A2E),
     appBarGradientEnd: Color(0xFF0F0F23),
-    folderIconColor: Color(0xFF9333EA),
-    playButtonColor: Color(0xFF9333EA),
+    folderIconColor: Color(0xFF7C3AED),
+    playButtonColor: Color(0xFF7C3AED),
     primaryTextColor: Color(0xFFE5E5E5),
     secondaryTextColor: Color(0xFF9CA3AF),
+    selectedGamesListItemColor: Color(0xFF3D3D4A),
+    correctColor: Color(0xFF22C55E),
+    wrongColor: Color(0xFFEF4444),
   );
 
   LinearGradient gradientFromColors(List<Color> colors) {
@@ -195,7 +215,10 @@ class AppTheme {
 
   Color cardColorAtIndex(int index) {
     if (this == AppTheme.playful) {
-      return Colors.primaries[index % Colors.primaries.length];
+      return Colors.primaries[index % Colors.primaries.length].shade100;
+    }
+    if (this == AppTheme.dark) {
+      return const Color(0xFF3D3D4A);
     }
     return const Color(0xFFFFFFFF);
   }

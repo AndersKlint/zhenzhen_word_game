@@ -224,7 +224,7 @@ class _RecallWordGameState extends State<RecallWordGame>
                         child: ElevatedButton(
                           onPressed: _markAgain,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.shade400,
+                            backgroundColor: widget.theme.wrongColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -243,7 +243,7 @@ class _RecallWordGameState extends State<RecallWordGame>
                         child: ElevatedButton(
                           onPressed: _markGood,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green.shade400,
+                            backgroundColor: widget.theme.correctColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),

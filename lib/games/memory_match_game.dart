@@ -350,8 +350,12 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
 
   LinearGradient _getTileGradient(_MemoryTile tile) {
     if (tile.isMatched) {
+      final correct = widget.theme.correctColor;
       return LinearGradient(
-        colors: [Colors.green.shade200, Colors.green.shade300],
+        colors: [
+          correct.withValues(alpha: 0.3),
+          correct.withValues(alpha: 0.5),
+        ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );

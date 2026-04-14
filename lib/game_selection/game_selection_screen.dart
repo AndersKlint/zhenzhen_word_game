@@ -56,48 +56,24 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
         height: double.infinity,
         decoration: BoxDecoration(gradient: widget.theme.backgroundGradient),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    l10n.gameSelection_selectMode,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: widget.theme.primaryTextColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _buildSelectedDecksPanel(context, l10n),
-                ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    children: [
-                      _buildRecallFrontCard(context, l10n, _controller),
-                      const SizedBox(height: 24),
-                      _buildRecallBothCard(context, l10n, _controller),
-                      const SizedBox(height: 24),
-                      _buildRandomMultiCard(context, l10n, _controller),
-                      const SizedBox(height: 24),
-                      _buildReverseRecallCard(context, l10n, _controller),
-                      const SizedBox(height: 24),
-                      _buildMultipleChoiceCard(context, l10n, _controller),
-                      const SizedBox(height: 24),
-                      _buildMemoryMatchCard(context, l10n, _controller),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            children: [
+              _buildSelectedDecksPanel(context, l10n),
+              const SizedBox(height: 24),
+              _buildRecallFrontCard(context, l10n, _controller),
+              const SizedBox(height: 24),
+              _buildRecallBothCard(context, l10n, _controller),
+              const SizedBox(height: 24),
+              _buildRandomMultiCard(context, l10n, _controller),
+              const SizedBox(height: 24),
+              _buildReverseRecallCard(context, l10n, _controller),
+              const SizedBox(height: 24),
+              _buildMultipleChoiceCard(context, l10n, _controller),
+              const SizedBox(height: 24),
+              _buildMemoryMatchCard(context, l10n, _controller),
+              const SizedBox(height: 24),
+            ],
           ),
         ),
       ),
@@ -124,32 +100,13 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.gameSelection_selectedDecks,
-                  style: TextStyle(
-                    color: widget.theme.primaryTextColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              FilledButton(
-                onPressed: () => _addDecks(context, l10n),
-                style: FilledButton.styleFrom(
-                  backgroundColor: widget.theme.buttonColor,
-                  foregroundColor: widget.theme.buttonTextColor,
-                  minimumSize: const Size(44, 44),
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: const Icon(Icons.add),
-              ),
-            ],
+          Text(
+            l10n.gameSelection_selectedDecks,
+            style: TextStyle(
+              color: widget.theme.primaryTextColor,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 12),
           if (_selectedDecks.isEmpty)
@@ -166,6 +123,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
               runSpacing: 10,
               children: [
                 for (final deck in _selectedDecks) _buildDeckChip(deck),
+                _buildAddDeckButton(context, l10n),
               ],
             ),
         ],
@@ -178,7 +136,7 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
       constraints: const BoxConstraints(minHeight: 40),
       padding: const EdgeInsets.only(left: 14, right: 8, top: 6, bottom: 6),
       decoration: BoxDecoration(
-        gradient: widget.theme.cardGradient,
+        color: widget.theme.selectedGamesListItemColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.theme.groupHeaderBorderColor.withValues(alpha: 0.4),
@@ -212,6 +170,22 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAddDeckButton(BuildContext context, AppLocalizations l10n) {
+    return Material(
+      color: widget.theme.playButtonColor,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () => _addDecks(context, l10n),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          child: Icon(Icons.add, size: 20, color: widget.theme.buttonTextColor),
+        ),
       ),
     );
   }
