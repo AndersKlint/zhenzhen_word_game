@@ -352,7 +352,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
       return;
     }
 
-    final outputPath = await FilePicker.platform.saveFile(
+    final outputPath = await FilePicker.saveFile(
       dialogTitle: l10n.export_title,
       fileName: 'zhenzhen_flashcard_collection.json',
     );
@@ -369,7 +369,7 @@ class _DeckListScreenState extends State<DeckListScreen> {
   }
 
   Future<void> _importCollection(AppLocalizations l10n) async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       dialogTitle: l10n.import_title,
       allowMultiple: false,
       type: FileType.custom,
