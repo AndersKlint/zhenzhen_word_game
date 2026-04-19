@@ -88,15 +88,24 @@ class _RandomWordGameState extends State<RandomWordGame>
 
   Widget _buildCard(String text, double cardSize) {
     final textColor = widget.theme.primaryTextColor;
+    final padding = cardSize * 0.08;
 
     double baseFontSize = cardSize * 0.14;
-    const double maxReduction = 5.0;
-    double lengthFactor = text.length / 10;
-    double fontReduction = (lengthFactor * 2).clamp(0, maxReduction);
-    double fontSize = (baseFontSize - fontReduction).clamp(
-      baseFontSize - maxReduction,
-      baseFontSize,
+    const double maxReduction = 10.0;
+    double lengthFactor = text.length / 8;
+    double fontReduction = (lengthFactor * 2.5).clamp(0, maxReduction);
+    double fontSize = (baseFontSize - fontReduction).clamp(10.0, baseFontSize);
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+      ),
+      maxLines: null,
+      textDirection: TextDirection.ltr,
     );
+    textPainter.layout(maxWidth: cardSize - padding * 2);
+    final needsScroll = textPainter.height > cardSize - padding * 2;
 
     return Container(
       constraints: BoxConstraints(
@@ -117,15 +126,33 @@ class _RandomWordGameState extends State<RandomWordGame>
         ],
       ),
       child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
+        child: needsScroll
+            ? SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(padding),
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                ),
+              )
+            : Padding(
+                padding: EdgeInsets.all(padding),
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ),
       ),
     );
   }

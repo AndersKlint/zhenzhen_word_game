@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../theme/app_theme.dart';
+import '../widgets/expandable_card.dart';
 import 'dart:math';
 
 class ReverseRecallGame extends StatefulWidget {
@@ -127,48 +128,11 @@ class _ReverseRecallGameState extends State<ReverseRecallGame>
     super.dispose();
   }
 
-  double _getFontSize(String text) {
-    if (text.length <= 5) return 50;
-    if (text.length <= 10) return 40;
-    if (text.length <= 15) return 30;
-    return 28;
-  }
-
   Widget _buildCard(String text, LinearGradient gradient) {
-    final fontSize = _getFontSize(text);
-    final textColor = widget.theme.primaryTextColor;
-
-    return Container(
-      constraints: const BoxConstraints(
-        minWidth: 120,
-        minHeight: 80,
-        maxWidth: 300,
-        maxHeight: 200,
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-      ),
+    return ExpandableCard(
+      text: text,
+      gradient: gradient,
+      textColor: widget.theme.primaryTextColor,
     );
   }
 

@@ -267,6 +267,10 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 24),
                 padding: const EdgeInsets.all(20),
+                constraints: const BoxConstraints(
+                  maxWidth: 600,
+                  maxHeight: 300,
+                ),
                 decoration: BoxDecoration(
                   gradient: _randomGradient(),
                   borderRadius: BorderRadius.circular(24),
@@ -278,14 +282,47 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                     ),
                   ],
                 ),
-                child: Text(
-                  frontText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: widget.theme.primaryTextColor,
-                  ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final textPainter = TextPainter(
+                      text: TextSpan(
+                        text: frontText,
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: widget.theme.primaryTextColor,
+                        ),
+                      ),
+                      maxLines: null,
+                      textDirection: TextDirection.ltr,
+                    );
+                    textPainter.layout(maxWidth: constraints.maxWidth - 40);
+                    final needsScroll =
+                        textPainter.height > constraints.maxHeight - 40;
+
+                    if (needsScroll) {
+                      return SingleChildScrollView(
+                        child: Text(
+                          frontText,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: widget.theme.primaryTextColor,
+                          ),
+                        ),
+                      );
+                    }
+                    return Text(
+                      frontText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: widget.theme.primaryTextColor,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -334,6 +371,7 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                     onTap: () => _selectAnswer(index),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
+                      constraints: const BoxConstraints(minHeight: 60),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: bgColor,
@@ -354,15 +392,17 @@ class _MultipleChoiceGameState extends State<MultipleChoiceGame>
                           ),
                         ],
                       ),
-                      child: Text(
-                        _options[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: _getFontSize(_options[index]),
-                          fontWeight: FontWeight.w600,
-                          color: showResult && (isCorrect || isSelected)
-                              ? Colors.white
-                              : widget.theme.primaryTextColor,
+                      child: Center(
+                        child: Text(
+                          _options[index],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: _getFontSize(_options[index]),
+                            fontWeight: FontWeight.w600,
+                            color: showResult && (isCorrect || isSelected)
+                                ? Colors.white
+                                : widget.theme.primaryTextColor,
+                          ),
                         ),
                       ),
                     ),

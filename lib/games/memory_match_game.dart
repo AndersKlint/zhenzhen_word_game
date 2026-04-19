@@ -290,18 +290,26 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
             end: Alignment.bottomRight,
           );
 
-    double baseFontSize = cardSize * 0.14;
-    const double maxReduction = 5.0;
-    double lengthFactor = text.length / 10;
-    double fontReduction = (lengthFactor * 2).clamp(0, maxReduction);
-    double fontSize = (baseFontSize - fontReduction).clamp(
-      baseFontSize - maxReduction,
-      baseFontSize,
-    );
-
     final padding = cardSize * 0.08;
     final borderRadius = cardSize * 0.15;
     final iconSize = cardSize * 0.35;
+
+    double baseFontSize = cardSize * 0.14;
+    const double maxReduction = 10.0;
+    double lengthFactor = text.length / 8;
+    double fontReduction = (lengthFactor * 2.5).clamp(0, maxReduction);
+    double fontSize = (baseFontSize - fontReduction).clamp(10.0, baseFontSize);
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+      ),
+      maxLines: null,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: cardSize - padding * 2);
+    final needsScroll = textPainter.height > cardSize - padding * 2;
 
     return GestureDetector(
       onTap: () => _flipTile(index),
@@ -326,18 +334,33 @@ class _MemoryMatchGameState extends State<MemoryMatchGame>
         ),
         child: Center(
           child: isFlipped
-              ? Padding(
-                  padding: EdgeInsets.all(padding),
-                  child: Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: widget.theme.primaryTextColor,
-                    ),
-                  ),
-                )
+              ? needsScroll
+                    ? SingleChildScrollView(
+                        child: Padding(
+                          padding: EdgeInsets.all(padding),
+                          child: Text(
+                            text,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                              color: widget.theme.primaryTextColor,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: EdgeInsets.all(padding),
+                        child: Text(
+                          text,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            color: widget.theme.primaryTextColor,
+                          ),
+                        ),
+                      )
               : Icon(
                   Icons.help_outline,
                   size: iconSize,

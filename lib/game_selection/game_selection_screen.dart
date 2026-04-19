@@ -109,15 +109,17 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          if (_selectedDecks.isEmpty)
+          if (_selectedDecks.isEmpty) ...[
             Text(
               l10n.gameSelection_addDecksHint,
               style: TextStyle(
                 color: widget.theme.secondaryTextColor,
                 fontSize: 14,
               ),
-            )
-          else
+            ),
+            const SizedBox(height: 10),
+            _buildAddDeckButton(context, l10n),
+          ] else
             Wrap(
               spacing: 10,
               runSpacing: 10,

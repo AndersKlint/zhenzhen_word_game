@@ -4,6 +4,7 @@ import '../game_service.dart';
 import '../di.dart';
 import '../models.dart';
 import '../theme/app_theme.dart';
+import '../widgets/expandable_card.dart';
 import 'dart:math';
 
 class RecallWordGame extends StatefulWidget {
@@ -112,50 +113,13 @@ class _RecallWordGameState extends State<RecallWordGame>
     );
   }
 
-  double _getFontSize(String text) {
-    if (text.length <= 5) return 50;
-    if (text.length <= 10) return 40;
-    if (text.length <= 15) return 30;
-    return 28;
-  }
-
   Widget _buildCard(String text) {
-    final fontSize = _getFontSize(text);
-    final textColor = widget.theme.primaryTextColor;
-
     return ScaleTransition(
       scale: CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
-      child: Container(
-        constraints: const BoxConstraints(
-          minWidth: 120,
-          minHeight: 80,
-          maxWidth: 300,
-          maxHeight: 200,
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: _randomGradient(),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-        ),
+      child: ExpandableCard(
+        text: text,
+        gradient: _randomGradient(),
+        textColor: widget.theme.primaryTextColor,
       ),
     );
   }
